@@ -1,7 +1,6 @@
 # chem-inf-widgets
 
-[![CI](https://github.com/crtomirp/chem-inf-widgets/actions/workflows/ci.yml/badge.svg)](https://github.com/crtomirp/chem-inf-widgets/actions/workflows/ci.yml)
-[![PyPI version](https://badge.fury.io/py/chem-inf-widgets.svg)](https://badge.fury.io/py/chem-inf-widgets)
+[![CI](https://github.com/crtomirp/owcheminf/actions/workflows/ci.yml/badge.svg)](https://github.com/crtomirp/owcheminf/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
@@ -23,6 +22,12 @@
 - [tests](tests) contains service, packaging and widget smoke tests
 - [data](data) contains teaching datasets and Orange workflows
 - [docs](docs) contains the current project documentation
+
+## GitHub Workflow
+
+- bug reports: [open a bug report](https://github.com/crtomirp/owcheminf/issues/new?template=bug_report.md)
+- feature ideas: [open a feature request](https://github.com/crtomirp/owcheminf/issues/new?template=feature_request.md)
+- pull requests: open against `main`
 
 ## Quick Setup
 

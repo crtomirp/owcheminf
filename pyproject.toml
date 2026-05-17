@@ -80,11 +80,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/crtomirp/chem-inf-widgets"
-Documentation = "https://github.com/crtomirp/chem-inf-widgets"
-Source = "https://github.com/crtomirp/chem-inf-widgets"
-Issues = "https://github.com/crtomirp/chem-inf-widgets/issues"
-Changelog = "https://github.com/crtomirp/chem-inf-widgets/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/crtomirp/owcheminf"
+Documentation = "https://github.com/crtomirp/owcheminf"
+Source = "https://github.com/crtomirp/owcheminf"
+Issues = "https://github.com/crtomirp/owcheminf/issues"
+Changelog = "https://github.com/crtomirp/owcheminf/blob/main/CHANGELOG.md"
 
 [project.scripts]
 owcheminf-validate-cyclic-registry = "chem_inf_widgets.chemcore.tools.validate_cyclic_registry:main"
