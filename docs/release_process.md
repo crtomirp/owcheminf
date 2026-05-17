@@ -49,6 +49,8 @@ The repository includes two release-oriented workflows:
 - `.github/workflows/publish-pypi.yml`
   Prepares trusted-publishing-based PyPI release publishing for future tags or manual dispatch.
 
+For the next patch release, see the concrete command runbook in `docs/releases/v0.2.1-runbook.md`.
+
 ## PyPI Notes
 
 Before first real PyPI publication:

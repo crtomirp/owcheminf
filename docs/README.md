@@ -5,6 +5,7 @@ Main documentation entry points:
 - [packaging.md](packaging.md)
 - [release_process.md](release_process.md)
 - [releases/v0.2.1-plan.md](releases/v0.2.1-plan.md)
+- [releases/v0.2.1-runbook.md](releases/v0.2.1-runbook.md)
 - [optional_dependencies.md](optional_dependencies.md)
 - [troubleshooting.md](troubleshooting.md)
 - [developer.md](developer.md)

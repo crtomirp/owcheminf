@@ -34,6 +34,7 @@
 - security policy: [SECURITY.md](SECURITY.md)
 - release process: [docs/release_process.md](docs/release_process.md)
 - next release plan: [docs/releases/v0.2.1-plan.md](docs/releases/v0.2.1-plan.md)
+- release runbook: [docs/releases/v0.2.1-runbook.md](docs/releases/v0.2.1-runbook.md)
 
 ## Quick Setup
 
