@@ -1,0 +1,17 @@
+name,smiles,case_type,comment
+acetic_acid_sodium_salt,[Na+].[O-]C(=O)C,salt,Simple organic salt; largest fragment and uncharging may change representation.
+aspirin,CC(=O)Oc1ccccc1C(=O)O,drug_like,Common neutral drug-like molecule.
+benzene_aromatic,c1ccccc1,aromatic,Aromatic benzene representation.
+benzene_kekule,C1=CC=CC=C1,kekule,Kekulized benzene representation.
+pyridine_aromatic,c1ccncc1,heteroaromatic,Aromatic heterocycle.
+pyridine_kekule,C1=CC=NC=C1,kekule_heteroaromatic,Kekulized heteroaromatic representation.
+nitrobenzene,O=[N+]([O-])c1ccccc1,nitro,Charge-separated nitro representation.
+tetramethylammonium,C[N+](C)(C)C,quaternary_ammonium,Permanently charged quaternary ammonium.
+glycine_zwitterion,[NH3+]CC(=O)[O-],zwitterion,Zwitterionic amino acid representation.
+morpholine,C1COCCN1,saturated_heterocycle,Saturated heterocycle.
+ferrocene_like,[Fe].c1cccc1.c1cccc1,metal_complex,Simplified metal-containing input; should be treated cautiously.
+mixture_ethanol_benzene,CCO.c1ccccc1,mixture,Artificial mixture with multiple organic fragments.
+invalid_unclosed_ring,C1CC,invalid,Invalid SMILES example.
+empty_entry,,invalid,Missing structure.
+warfarin,CC(=O)CC(c1ccccc1)c2c(O)c3ccccc3oc2=O,drug_like,Drug-like molecule with aromatic rings and oxygenated groups.
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,drug_like,Heterocycle-rich drug-like molecule.

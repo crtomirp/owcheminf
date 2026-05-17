@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 10 - Cluster-Aware QSAR" description="Cluster compounds, compare cluster activity distributions, fit a QSAR model, and inspect selected predictions.">
+    <nodes>
+        <node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="VEGFR2 QSAR CSV" position="(80.0, 270.0)" />
+        <node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem_inf_widgets" version="" title="Mol Standardizer" position="(280.0, 270.0)" />
+        <node id="2" name="Fingerprint Generator" qualified_name="chem_inf_widgets.widgets.ow_fingerprint_generator.OWFingerprintGenerator" project_name="chem_inf_widgets" version="" title="Fingerprint Generator" position="(510.0, 270.0)" />
+        <node id="3" name="k-Means" qualified_name="Orange.widgets.unsupervised.owkmeans.OWKMeans" project_name="Orange3" version="" title="k-Means" position="(740.0, 140.0)" />
+        <node id="4" name="Box Plot" qualified_name="Orange.widgets.visualize.owboxplot.OWBoxPlot" project_name="Orange3" version="" title="Cluster Activity Box Plot" position="(980.0, 140.0)" />
+        <node id="5" name="QSAR Regression" qualified_name="chem_inf_widgets.widgets.ow_qsar_regression.OWQSARRegression" project_name="chem_inf_widgets" version="" title="QSAR Regression" position="(740.0, 390.0)" />
+        <node id="6" name="Scatter Plot" qualified_name="Orange.widgets.visualize.owscatterplot.OWScatterPlot" project_name="Orange3" version="" title="Prediction Scatter" position="(1030.0, 340.0)" />
+        <node id="7" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Selected Predictions" position="(1290.0, 260.0)" />
+        <node id="8" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem_inf_widgets" version="" title="Selected Molecules" position="(1290.0, 430.0)" />
+    </nodes>
+    <links>
+        <link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="2" source_node_id="2" sink_node_id="3" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="3" source_node_id="3" sink_node_id="4" source_channel="Annotated Data" sink_channel="Data" enabled="true" source_channel_id="annotated_data" sink_channel_id="data" />
+        <link id="4" source_node_id="2" sink_node_id="5" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="5" source_node_id="5" sink_node_id="6" source_channel="Test Results" sink_channel="Data" enabled="true" source_channel_id="test_results" sink_channel_id="data" />
+        <link id="6" source_node_id="5" sink_node_id="7" source_channel="Selected Compounds" sink_channel="Data" enabled="true" source_channel_id="selected_compounds" sink_channel_id="data" />
+        <link id="7" source_node_id="5" sink_node_id="8" source_channel="Selected Compounds" sink_channel="Data" enabled="true" source_channel_id="selected_compounds" sink_channel_id="data" />
+    </links>
+    <annotations />
+    <thumbnail />
+    <node_properties />
+    <session_state>
+        <window_groups />
+    </session_state>
+</scheme>

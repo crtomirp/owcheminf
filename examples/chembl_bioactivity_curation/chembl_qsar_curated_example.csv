@@ -1,0 +1,7 @@
+molecule_id,canonical_smiles,pchembl_value,activity_type,target_id,assay_count,curation_status
+CMPD_001,CCOc1ccc2nc(S(N)(=O)=O)sc2c1,7.60,IC50,TGT_001,1,included
+CMPD_004,CC(C)NCC(O)COc1ccccc1,7.26,IC50,TGT_001,2,included_median
+CMPD_008,CCN(CC)CC(=O)Nc1c(C)cccc1C,7.10,IC50,TGT_001,1,included
+CMPD_010,Cn1cnc2c1c(=O)n(C)c(=O)n2C,5.70,IC50,TGT_001,1,included
+CMPD_011,CN1CCC[C@H]1c2cccnc2,6.40,IC50,TGT_001,1,included
+CMPD_012,CC(=O)Oc1ccccc1C(=O)O,5.95,IC50,TGT_001,1,included

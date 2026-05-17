@@ -1,0 +1,13 @@
+name,smiles,source
+benzene,c1ccccc1,toy
+toluene,Cc1ccccc1,toy
+phenol,Oc1ccccc1,toy
+pyridine,c1ccncc1,toy
+piperidine,C1CCNCC1,toy
+morpholine,C1COCCN1,toy
+indole,c1ccc2[nH]ccc2c1,toy
+quinoline,c1ccc2ncccc2c1,toy
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,toy
+aspirin,CC(=O)Oc1ccccc1C(=O)O,toy
+nicotine,CN1CCC[C@H]1c2cccnc2,toy
+lidocaine,CCN(CC)CC(=O)Nc1c(C)cccc1C,toy

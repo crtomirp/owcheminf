@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 12 - Motif Query Substructure Search" description="Use the Compound Detail Card to detect heterocycles and functional groups, select one motif query, and run exact substructure search over the library.">
+    <nodes>
+        <node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="Compound Library CSV" position="(80.0, 260.0)" />
+        <node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem-inf-widgets" version="" title="Mol Standardizer" position="(280.0, 260.0)" />
+        <node id="2" name="Compound Detail Card" qualified_name="chem_inf_widgets.widgets.ow_compound_detail_card.OWCompoundDetailCard" project_name="chem-inf-widgets" version="" title="Compound Detail Card" position="(540.0, 260.0)" />
+        <node id="3" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Detected Motifs" position="(840.0, 120.0)" />
+        <node id="4" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Motif Queries" position="(840.0, 300.0)" />
+        <node id="5" name="Substructure &amp; Similarity Search" qualified_name="chem_inf_widgets.widgets.ow_substructure_search.OWSubstructureSearch" project_name="chem-inf-widgets" version="" title="Motif Containment Search" position="(1110.0, 300.0)" />
+        <node id="6" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Filtered Motif Hits" position="(1390.0, 210.0)" />
+        <node id="7" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem-inf-widgets" version="" title="Filtered Motif Hits" position="(1390.0, 390.0)" />
+    </nodes>
+    <links>
+        <link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="2" source_node_id="2" sink_node_id="3" source_channel="Detected Motifs" sink_channel="Data" enabled="true" source_channel_id="detected_motifs" sink_channel_id="data" />
+        <link id="3" source_node_id="2" sink_node_id="4" source_channel="Motif Queries" sink_channel="Data" enabled="true" source_channel_id="motif_queries" sink_channel_id="data" />
+        <link id="4" source_node_id="4" sink_node_id="5" source_channel="Selected Data" sink_channel="Query Data" enabled="true" source_channel_id="selected_data" sink_channel_id="query_table" />
+        <link id="5" source_node_id="1" sink_node_id="5" source_channel="Data" sink_channel="Compounds" enabled="true" source_channel_id="data" sink_channel_id="compounds" />
+        <link id="6" source_node_id="5" sink_node_id="6" source_channel="Filtered Compounds" sink_channel="Data" enabled="true" source_channel_id="orange_data" sink_channel_id="data" />
+        <link id="7" source_node_id="5" sink_node_id="7" source_channel="Filtered Compounds" sink_channel="Data" enabled="true" source_channel_id="orange_data" sink_channel_id="data" />
+    </links>
+    <annotations />
+    <thumbnail />
+    <node_properties />
+    <session_state>
+        <window_groups />
+    </session_state>
+</scheme>

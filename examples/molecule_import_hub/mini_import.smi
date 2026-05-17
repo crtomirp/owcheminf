@@ -1,0 +1,4 @@
+CC(=O)Oc1ccccc1C(=O)O aspirin
+Cn1cnc2c1c(=O)n(C)c(=O)n2C caffeine
+c1ccncc1 pyridine
+C1CC invalid_ring

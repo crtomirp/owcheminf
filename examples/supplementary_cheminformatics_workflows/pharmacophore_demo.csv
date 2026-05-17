@@ -1,0 +1,7 @@
+name,smiles,feature_hint
+phenol,Oc1ccccc1,aromatic + donor
+aniline,Nc1ccccc1,aromatic + donor
+pyridine,c1ccncc1,aromatic + acceptor
+morpholine,C1COCCN1,acceptor + amine
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,multiple acceptors
+lidocaine,CCN(CC)CC(=O)Nc1c(C)cccc1C,amide + amine + aromatic

@@ -1,0 +1,9 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20,10 L60,10 L80,30 L80,90 L20,90 Z" fill="#f8f9fa" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M60,10 L60,30 L80,30" fill="#e9ecef" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+  
+  <path d="M50,35 L63,42.5 L63,57.5 L50,65 L37,57.5 L37,42.5 Z" fill="none" stroke="#FE7A00" stroke-width="4"/>
+  <circle cx="50" cy="50" r="4" fill="#FE7A00"/>
+  
+  <text x="50" y="82" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="16" text-anchor="middle" fill="#333">SDF</text>
+</svg>

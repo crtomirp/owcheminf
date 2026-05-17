@@ -1,0 +1,11 @@
+name,smiles,case_type,expected_issue
+bad_valence_nitrogen,C[N](C)(C)C,valence_or_sanitization,May fail or require careful interpretation depending on parser behavior.
+quaternary_ammonium,C[N+](C)(C)C,permanent_charge,Should remain charged; uncharging should not remove permanent charge.
+nitro_neutral_like,N(=O)(=O)c1ccccc1,nitro_normalization,May be normalized to charge-separated nitro form.
+nitro_charge_separated,O=[N+]([O-])c1ccccc1,nitro_reference,Common valid nitro representation.
+sodium_carboxylate,[Na+].[O-]C(=O)c1ccccc1,salt,Largest fragment and uncharging are relevant.
+zwitterion,[NH3+]CC(=O)[O-],zwitterion,Charge handling depends on protocol.
+metal_salt,[Mg+2].[O-]C(=O)C.[O-]C(=O)C,metal_salt,Metal disconnection and fragment handling are relevant.
+aromatic_pyridine,c1ccncc1,aromaticity,Aromatic input.
+kekule_pyridine,C1=CC=NC=C1,kekulization,Kekulized input.
+invalid_ring,C1=CC=CC,invalid,Invalid ring closure.

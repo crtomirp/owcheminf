@@ -1,0 +1,25 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Document base (same style as other widgets) -->
+  <path d="M20,10 L60,10 L80,30 L80,90 L20,90 Z"
+        fill="#f8f9fa" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M60,10 L60,30 L80,30"
+        fill="#e9ecef" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- Molecule glyph (orange) -->
+  <path d="M50,24 L63,31.5 L63,46.5 L50,54 L37,46.5 L37,31.5 Z"
+        fill="none" stroke="#FE7A00" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="50" cy="39" r="4" fill="#FE7A00"/>
+
+  <!-- Filter funnel (blue) -->
+  <path d="M32,58 L68,58 L56,70 L56,82 L44,82 L44,70 Z"
+        fill="none" stroke="#007bff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Pass / Fail marks -->
+  <path d="M28,78 L32,82 L40,74"
+        fill="none" stroke="#28a745" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M70,74 L78,82"
+        fill="none" stroke="#dc3545" stroke-width="6" stroke-linecap="round"/>
+  <path d="M78,74 L70,82"
+        fill="none" stroke="#dc3545" stroke-width="6" stroke-linecap="round"/>
+</svg>

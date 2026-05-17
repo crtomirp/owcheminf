@@ -1,0 +1,6 @@
+metric,value,scope
+r2,0.72,test
+rmse,0.31,test
+mae,0.24,test
+cv_r2,0.61,cross_validation
+cv_rmse,0.38,cross_validation

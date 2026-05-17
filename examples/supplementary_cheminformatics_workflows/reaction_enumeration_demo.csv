@@ -1,0 +1,6 @@
+reactant_id,smiles,role
+acid_01,CC(=O)O,acid
+acid_02,c1ccccc1C(=O)O,acid
+amine_01,NCC,amine
+amine_02,Nc1ccccc1,amine
+amine_03,N1CCOCC1,amine

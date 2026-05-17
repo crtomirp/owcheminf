@@ -1,0 +1,8 @@
+name,smiles,motif_hint
+benzene,c1ccccc1,aromatic carbocycle
+pyridine,c1ccncc1,aromatic N heterocycle
+aniline,Nc1ccccc1,aromatic amine
+nitrobenzene,O=[N+]([O-])c1ccccc1,nitro aromatic
+sulfoxide_example,CS(=O)C,sulfoxide
+acetamide,CC(=O)N,amide
+triethylamine,CCN(CC)CC,tertiary amine

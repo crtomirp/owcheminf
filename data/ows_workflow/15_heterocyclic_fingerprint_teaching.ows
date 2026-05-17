@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Heterocyclic Fingerprint Teaching Demo" description="Pedagogical workflow for the cyclic/heterocyclic registry fingerprint widget: inspect the input library, compute the 4096-bit fingerprint, and review matched registry entries side by side.">
+	<nodes>
+		<node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="SMILES Library" position="(70.0, 240.0)" />
+		<node id="1" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem-inf-widgets" version="" title="Original Molecules" position="(310.0, 110.0)" />
+		<node id="2" name="Cyclic Registry Fingerprint" qualified_name="chem_inf_widgets.widgets.ow_cyclic_registry_fingerprint.OWCyclicRegistryFingerprint" project_name="chem-inf-widgets" version="" title="Heterocyclic Fingerprint" position="(320.0, 280.0)" />
+		<node id="3" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Fingerprint Matrix" position="(670.0, 180.0)" />
+		<node id="4" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Matched Registry Entries" position="(670.0, 360.0)" />
+		<node id="5" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem-inf-widgets" version="" title="Fingerprint Molecules" position="(670.0, 60.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="1" source_node_id="0" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="2" source_node_id="2" sink_node_id="3" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+		<link id="3" source_node_id="2" sink_node_id="4" source_channel="Matched Registry Entries" sink_channel="Data" enabled="true" source_channel_id="matches" sink_channel_id="data" />
+		<link id="4" source_node_id="2" sink_node_id="5" source_channel="Molecules" sink_channel="Molecules" enabled="true" source_channel_id="molecules" sink_channel_id="molecules" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties />
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSME Molecular Editor</title>
+  <style>
+    html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
+    #jsme_container { width: 100%; height: 100%; }
+    #jsme_container svg text {
+      font-family: Helvetica, Arial, sans-serif !important;
+      text-rendering: geometricPrecision;
+    }
+  </style>
+
+  <!-- Load JSME (keep this file next to this HTML, or adjust the path) -->
+  <script src="jsme.nocache.js"></script>
+
+  <script>
+    // Global applet handle
+    window.jsmeApplet = null;
+    window._jsmeAlignObserver = null;
+    window._jsmeAlignScheduled = false;
+
+    function scheduleAlignmentPatch() {
+      if (window._jsmeAlignScheduled) return;
+      window._jsmeAlignScheduled = true;
+      requestAnimationFrame(function() {
+        window._jsmeAlignScheduled = false;
+        patchSvgTextAlignment();
+      });
+    }
+
+    function patchSvgTextAlignment() {
+      try {
+        var canvas = window._jsmeMeasureCanvas;
+        if (!canvas) {
+          canvas = document.createElement("canvas");
+          window._jsmeMeasureCanvas = canvas;
+        }
+        var ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        document.querySelectorAll("#jsme_container svg text").forEach(function(el) {
+          var rawX = el.dataset.originalX || el.getAttribute("x");
+          if (!rawX) return;
+
+          var originalX = parseFloat(rawX);
+          if (!Number.isFinite(originalX)) return;
+          if (!el.dataset.originalX) {
+            el.dataset.originalX = String(originalX);
+          }
+
+          var fontSize = el.getAttribute("font-size") || getComputedStyle(el).fontSize || "16px";
+          var fontFamily = el.getAttribute("font-family") || getComputedStyle(el).fontFamily || "Helvetica";
+          var fontWeight = el.getAttribute("font-weight") || getComputedStyle(el).fontWeight || "normal";
+          var fontStyle = getComputedStyle(el).fontStyle || "normal";
+          ctx.font = fontStyle + " " + fontWeight + " " + fontSize + " " + fontFamily;
+
+          var text = el.textContent || "";
+          if (!text) return;
+
+          var expectedWidth = ctx.measureText(text).width;
+          var actualWidth = 0;
+          try {
+            actualWidth = el.getBBox().width;
+          } catch (e) {
+            actualWidth = 0;
+          }
+          if (!(expectedWidth > 0 && actualWidth > 0)) return;
+
+          if (text.length <= 4) {
+            el.setAttribute("textLength", expectedWidth.toFixed(2));
+            el.setAttribute("lengthAdjust", "spacingAndGlyphs");
+          }
+
+          var adjustedX = originalX + (expectedWidth - actualWidth) / 2;
+          if (Math.abs(adjustedX - parseFloat(el.getAttribute("x") || "0")) > 0.25) {
+            el.setAttribute("x", adjustedX.toFixed(2));
+          }
+        });
+      } catch (e) {
+        console.error("JSME: alignment patch error:", e);
+      }
+    }
+
+    function ensureAlignmentObserver() {
+      try {
+        if (window._jsmeAlignObserver) return;
+        var root = document.getElementById("jsme_container");
+        if (!root) return;
+        window._jsmeAlignObserver = new MutationObserver(function() {
+          scheduleAlignmentPatch();
+        });
+        window._jsmeAlignObserver.observe(root, {
+          subtree: true,
+          childList: true,
+          attributes: true,
+          attributeFilter: ["x", "y", "font-size", "font-family"]
+        });
+      } catch (e) {
+        console.error("JSME: observer init error:", e);
+      }
+    }
+
+    // Called by JSME when it is fully ready (standard JSME hook)
+    function jsmeOnLoad() {
+      try {
+        window.jsmeApplet = new JSApplet.JSME("jsme_container", "100%", "100%", {
+          // Hide implicit H labels so atom symbols stay visually centered.
+          "options": "query"
+        });
+        console.log("JSME: initialized via JSApplet.JSME()");
+        ensureAlignmentObserver();
+        setTimeout(scheduleAlignmentPatch, 150);
+        setTimeout(scheduleAlignmentPatch, 600);
+      } catch (e) {
+        console.error("JSME: init error:", e);
+      }
+    }
+
+    // External API used by QtWebEngine widget (safe wrappers)
+
+    window.isReady = function() {
+      return Boolean(window.jsmeApplet);
+    };
+
+    window.getSmiles = function() {
+      try {
+        if (!window.jsmeApplet) return "";
+        if (typeof window.jsmeApplet.smiles === "function") return window.jsmeApplet.smiles();
+        return "";
+      } catch (e) {
+        console.error("JSME: getSmiles error:", e);
+        return "";
+      }
+    };
+
+    // Try to set SMILES if supported by this JSME build
+    window.setSmiles = function(smiles) {
+      try {
+        if (!window.jsmeApplet) return false;
+        if (typeof window.jsmeApplet.readSmiles === "function") { window.jsmeApplet.readSmiles(smiles); setTimeout(scheduleAlignmentPatch, 50); setTimeout(scheduleAlignmentPatch, 250); return true; }
+        if (typeof window.jsmeApplet.readSMILES === "function") { window.jsmeApplet.readSMILES(smiles); setTimeout(scheduleAlignmentPatch, 50); setTimeout(scheduleAlignmentPatch, 250); return true; }
+        return false;
+      } catch (e) {
+        console.error("JSME: setSmiles error:", e);
+        return false;
+      }
+    };
+
+    // Molfile fallback (many JSME builds support readMolFile even when readSmiles is missing)
+    window.setMolfile = function(molfile) {
+      try {
+        if (!window.jsmeApplet) return false;
+        if (typeof window.jsmeApplet.readMolFile === "function") { window.jsmeApplet.readMolFile(molfile); setTimeout(scheduleAlignmentPatch, 50); setTimeout(scheduleAlignmentPatch, 250); return true; }
+        return false;
+      } catch (e) {
+        console.error("JSME: setMolfile error:", e);
+        return false;
+      }
+    };
+  </script>
+</head>
+
+<body style="margin:0;padding:0;">
+  <div id="jsme_container"></div>
+</body>
+</html>

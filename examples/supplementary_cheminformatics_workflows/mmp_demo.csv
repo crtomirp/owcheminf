@@ -1,0 +1,7 @@
+compound_id,smiles,pIC50,logP
+M1,CCOc1ccccc1,5.7,2.7
+M2,COc1ccccc1,5.4,2.1
+M3,Clc1ccccc1,6.0,2.8
+M4,Fc1ccccc1,5.8,2.2
+M5,Oc1ccccc1,5.2,1.5
+M6,Nc1ccccc1,5.3,1.4

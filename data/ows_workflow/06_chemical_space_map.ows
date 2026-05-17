@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 06 - Chemical Space Map" description="Project molecular fingerprints into low-dimensional space and inspect selected regions with scaffold and molecule viewers.">
+    <nodes>
+        <node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="VEGFR2 QSAR CSV" position="(80.0, 250.0)" />
+        <node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem_inf_widgets" version="" title="Mol Standardizer" position="(270.0, 250.0)" />
+        <node id="2" name="Fingerprint Generator" qualified_name="chem_inf_widgets.widgets.ow_fingerprint_generator.OWFingerprintGenerator" project_name="chem_inf_widgets" version="" title="Fingerprint Generator" position="(490.0, 250.0)" />
+        <node id="3" name="PCA" qualified_name="Orange.widgets.unsupervised.owpca.OWPCA" project_name="Orange3" version="" title="PCA" position="(710.0, 250.0)" />
+        <node id="4" name="Scatter Plot" qualified_name="Orange.widgets.visualize.owscatterplot.OWScatterPlot" project_name="Orange3" version="" title="Chemical Space Scatter" position="(930.0, 250.0)" />
+        <node id="5" name="Scaffold Analysis" qualified_name="chem_inf_widgets.widgets.ow_scaffold_analysis.OWScaffoldAnalysis" project_name="chem_inf_widgets" version="" title="Scaffold Analysis" position="(1180.0, 150.0)" />
+        <node id="6" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Selected Projection Points" position="(1180.0, 340.0)" />
+        <node id="7" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Selected Scaffold Summary" position="(1430.0, 150.0)" />
+        <node id="8" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem_inf_widgets" version="" title="Selected Molecules" position="(1430.0, 340.0)" />
+    </nodes>
+    <links>
+        <link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="2" source_node_id="2" sink_node_id="3" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="3" source_node_id="3" sink_node_id="4" source_channel="Transformed Data" sink_channel="Data" enabled="true" source_channel_id="transformed_data" sink_channel_id="data" />
+        <link id="4" source_node_id="4" sink_node_id="5" source_channel="Selected Data" sink_channel="Data" enabled="true" source_channel_id="selected_data" sink_channel_id="data" />
+        <link id="5" source_node_id="4" sink_node_id="6" source_channel="Selected Data" sink_channel="Data" enabled="true" source_channel_id="selected_data" sink_channel_id="data" />
+        <link id="6" source_node_id="5" sink_node_id="7" source_channel="Scaffold Summary" sink_channel="Data" enabled="true" source_channel_id="scaffold_summary" sink_channel_id="data" />
+        <link id="7" source_node_id="4" sink_node_id="8" source_channel="Selected Data" sink_channel="Data" enabled="true" source_channel_id="selected_data" sink_channel_id="data" />
+    </links>
+    <annotations />
+    <thumbnail />
+    <node_properties />
+    <session_state>
+        <window_groups />
+    </session_state>
+</scheme>

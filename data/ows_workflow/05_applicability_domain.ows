@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 05 - Applicability Domain" description="Compare a reference set and a query set in descriptor space and inspect in-domain versus out-of-domain compounds.">
+    <nodes>
+        <node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="Reference CSV" position="(80.0, 150.0)" />
+        <node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem_inf_widgets" version="" title="Reference Standardizer" position="(290.0, 150.0)" />
+        <node id="2" name="Fingerprint Generator" qualified_name="chem_inf_widgets.widgets.ow_fingerprint_generator.OWFingerprintGenerator" project_name="chem_inf_widgets" version="" title="Reference Fingerprints" position="(520.0, 150.0)" />
+        <node id="3" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="Query CSV" position="(80.0, 360.0)" />
+        <node id="4" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem_inf_widgets" version="" title="Query Standardizer" position="(290.0, 360.0)" />
+        <node id="5" name="Fingerprint Generator" qualified_name="chem_inf_widgets.widgets.ow_fingerprint_generator.OWFingerprintGenerator" project_name="chem_inf_widgets" version="" title="Query Fingerprints" position="(520.0, 360.0)" />
+        <node id="6" name="Applicability Domain" qualified_name="chem_inf_widgets.widgets.ow_applicability_domain.OWApplicabilityDomain" project_name="chem_inf_widgets" version="" title="Applicability Domain" position="(800.0, 255.0)" />
+        <node id="7" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Query Results" position="(1070.0, 140.0)" />
+        <node id="8" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Reference Results" position="(1070.0, 270.0)" />
+        <node id="9" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="AD Summary" position="(1070.0, 400.0)" />
+        <node id="10" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem_inf_widgets" version="" title="Query Molecules" position="(1320.0, 140.0)" />
+    </nodes>
+    <links>
+        <link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="2" source_node_id="3" sink_node_id="4" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="3" source_node_id="4" sink_node_id="5" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="4" source_node_id="5" sink_node_id="6" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="5" source_node_id="2" sink_node_id="6" source_channel="Fingerprints" sink_channel="Reference Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="reference_data" />
+        <link id="6" source_node_id="6" sink_node_id="7" source_channel="Data Results" sink_channel="Data" enabled="true" source_channel_id="data_results" sink_channel_id="data" />
+        <link id="7" source_node_id="6" sink_node_id="8" source_channel="Reference Results" sink_channel="Data" enabled="true" source_channel_id="reference_results" sink_channel_id="data" />
+        <link id="8" source_node_id="6" sink_node_id="9" source_channel="AD Summary" sink_channel="Data" enabled="true" source_channel_id="summary" sink_channel_id="data" />
+        <link id="9" source_node_id="6" sink_node_id="10" source_channel="Data Results" sink_channel="Data" enabled="true" source_channel_id="data_results" sink_channel_id="data" />
+    </links>
+    <annotations />
+    <thumbnail />
+    <node_properties />
+    <session_state>
+        <window_groups />
+    </session_state>
+</scheme>

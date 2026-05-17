@@ -1,0 +1,26 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Document base -->
+  <path d="M20,10 L60,10 L80,30 L80,90 L20,90 Z"
+        fill="#f8f9fa" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M60,10 L60,30 L80,30"
+        fill="#e9ecef" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- Small "table" grid on the document -->
+  <rect x="28" y="40" width="44" height="26" fill="none" stroke="#333" stroke-width="3" rx="4"/>
+  <path d="M28,49 H72 M28,58 H72" fill="none" stroke="#333" stroke-width="2"/>
+  <path d="M42,40 V66 M56,40 V66" fill="none" stroke="#333" stroke-width="2"/>
+
+  <!-- Molecule glyph (orange) -->
+  <path d="M50,18 L62,25 L62,39 L50,46 L38,39 L38,25 Z"
+        fill="none" stroke="#FE7A00" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="50" cy="32" r="4" fill="#FE7A00"/>
+
+  <!-- Descriptor "bars" (blue) coming out of the table -->
+  <rect x="30" y="72" width="10" height="14" fill="#007bff" stroke="#333" stroke-width="2" rx="2"/>
+  <rect x="45" y="68" width="10" height="18" fill="#007bff" stroke="#333" stroke-width="2" rx="2"/>
+  <rect x="60" y="74" width="10" height="12" fill="#007bff" stroke="#333" stroke-width="2" rx="2"/>
+
+  <!-- Small "Σ" to suggest descriptor calculation -->
+  <text x="71" y="64" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#28a745">Σ</text>
+</svg>
+

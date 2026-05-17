@@ -1,0 +1,14 @@
+SMILES,name,teaching_role
+c1ccncc1,Pyridine,aromatic heterocycle
+c1ccoc1,Furan,aromatic oxygen heterocycle
+c1ccsc1,Thiophene,aromatic sulfur heterocycle
+c1ncc[nH]1,Imidazole,polar aromatic heterocycle
+c1ccc2[nH]ccc2c1,Indole,fused aromatic heterocycle
+c1ccc2ncccc2c1,Quinoline,fused aza aromatic
+O1CCNCC1,Morpholine,saturated heterocycle
+N1CCCCC1,Piperidine,saturated aza heterocycle
+c1ncoc1,Oxazole,mixed hetero aromatic
+c1ncs[cH]1,Thiazole,mixed hetero aromatic
+O=C1N(C)C(=O)N(C)C2=NC=NC12,Caffeine,polyheterocyclic reference
+C1CCCCC1,Cyclohexane,carbocycle control
+c1ccccc1OC,Anisole,acyclic oxygen substituent control

@@ -1,0 +1,147 @@
+[build-system]
+requires = ["setuptools>=77.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chem-inf-widgets"
+version = "0.2.0"
+description = "Chemoinformatics widgets for Orange Data Mining"
+readme = "src/chem_inf_widgets/README.md"
+license = "MIT"
+license-files = ["src/chem_inf_widgets/LICENSE"]
+authors = [
+    { name = "Crtomir Podlipnik", email = "crtomir.podlipnik@gmail.com" }
+]
+requires-python = ">=3.9"
+keywords = [
+    "chemoinformatics", "rdkit", "orange3", "qsar", "drug-discovery",
+    "machine-learning", "scaffold", "fingerprints", "cheminformatics"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+dependencies = [
+    "orange3>=3.35",
+    "AnyQt>=0.2",
+    "rdkit",
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "matplotlib",
+    "requests",
+    "pillow",
+    "pyyaml",
+    "networkx",
+    "chardet"
+]
+
+[project.optional-dependencies]
+sketchers = []
+descriptors = [
+    "mordred",
+    "padelpy"
+]
+viewer3d = [
+    "py3Dmol"
+]
+hpo = [
+    "optuna"
+]
+deep-learning = [
+    "torch"
+]
+dev = [
+    "pytest",
+    "ruff",
+    "black",
+    "isort",
+    "build",
+    "twine"
+]
+all = [
+    "mordred",
+    "padelpy",
+    "py3Dmol",
+    "torch",
+    "optuna"
+]
+
+[project.urls]
+Homepage = "https://github.com/crtomirp/chem-inf-widgets"
+Documentation = "https://github.com/crtomirp/chem-inf-widgets"
+Source = "https://github.com/crtomirp/chem-inf-widgets"
+Issues = "https://github.com/crtomirp/chem-inf-widgets/issues"
+Changelog = "https://github.com/crtomirp/chem-inf-widgets/blob/main/CHANGELOG.md"
+
+[project.scripts]
+owcheminf-validate-cyclic-registry = "chem_inf_widgets.chemcore.tools.validate_cyclic_registry:main"
+owcheminf-cyclic-registry-fingerprint = "chem_inf_widgets.chemcore.tools.cyclic_registry_fingerprint_cli:main"
+owcheminf-molecule-qc = "chem_inf_widgets.chemcore.tools.molecule_qc_cli:main"
+owcheminf-molecule-import = "chem_inf_widgets.chemcore.tools.molecule_import_cli:main"
+owcheminf-qsar-dataset-builder = "chem_inf_widgets.chemcore.tools.qsar_dataset_builder_cli:main"
+owcheminf-qsar-model-hub = "chem_inf_widgets.chemcore.tools.qsar_model_hub_cli:main"
+owcheminf-qsar-validation-dashboard = "chem_inf_widgets.chemcore.tools.qsar_validation_dashboard_cli:main"
+owcheminf-ad-workbench = "chem_inf_widgets.chemcore.tools.ad_workbench_cli:main"
+owcheminf-model-explanation = "chem_inf_widgets.chemcore.tools.model_explanation_cli:main"
+owcheminf-qsar-report-generator = "chem_inf_widgets.chemcore.tools.qsar_report_generator_cli:main"
+owcheminf-qsar-prediction-packager = "chem_inf_widgets.chemcore.tools.qsar_prediction_packager_cli:main"
+owcheminf-clean-repo = "chem_inf_widgets.chemcore.tools.clean_repo_cli:main"
+
+[project.entry-points."orange.widgets"]
+Chemoinformatics = "chem_inf_widgets.widgets"
+
+# src-layout konfiguracija
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# vključimo tudi statične datoteke (ikone, html, js)
+[tool.setuptools.package-data]
+"chem_inf_widgets" = [
+    "README.md",
+    "LICENSE",
+    "DATA.txt",
+    "*.json",
+    "jsonconfigs/**/*",
+    "examples/**/*"
+]
+"chem_inf_widgets.widgets" = [
+    "icons/README.md",
+    "icons/analysis/*",
+    "icons/categories/*",
+    "icons/data_retrieval/*",
+    "icons/descriptors/*",
+    "icons/editors_viewers/*",
+    "icons/input_output/*",
+    "icons/modeling/*",
+    "icons/reactions/*",
+    "icons/standardization_filtering/*",
+    "jsme/**/*",
+    "ketcher/**/*",
+    "*.json"
+]
+"chem_inf_widgets.chemcore" = [
+    "resources/**/*"
+]
+"chem_inf_widgets.chemcore.data" = [
+    "*.json",
+    "*.csv"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

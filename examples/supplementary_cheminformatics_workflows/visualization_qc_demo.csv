@@ -1,0 +1,6 @@
+name,smiles,qc_issue
+pyridine_aromatic,c1ccncc1,aromatic representation
+pyridine_kekule,C1=CC=NC=C1,kekulized representation
+salt_example,[Na+].[O-]C(=O)C,salt/counterion
+nitrobenzene,O=[N+]([O-])c1ccccc1,charge separated nitro
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,fused heterocycle

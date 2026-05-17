@@ -1,0 +1,46 @@
+name: owcheminf-dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+
+  # Core runtime
+  - rdkit
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - requests
+  - pillow
+  - pyyaml
+  - networkx
+  - chardet
+  - orange3
+  - pyqt=5
+  - pyqtwebengine
+  - qt-main
+  - pyqtgraph
+
+  # Common optional runtime pieces used in local development
+  - plotly
+  - py3dmol
+
+  # Development / packaging
+  - pytest
+  - black
+  - isort
+  - ruff
+  - pre-commit
+  - twine
+  - python-build
+
+  # Pip-only extras aligned with pyproject optional dependencies
+  - pip:
+      - mordred
+      - padelpy
+      - optuna
+
+# Optional after environment creation:
+#   pip install -e .[deep-learning]

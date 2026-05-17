@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 11 - Compound Detail to Database Search" description="Inspect one compound in a FAIRMol-style detail card and launch PharmaFP-guided database search.">
+	<nodes>
+		<node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="Compound Library CSV" position="(70.0, 240.0)" />
+		<node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem-inf-widgets" version="" title="Mol Standardizer" position="(280.0, 240.0)" />
+		<node id="2" name="Compound Detail Card" qualified_name="chem_inf_widgets.widgets.ow_compound_detail_card.OWCompoundDetailCard" project_name="chem-inf-widgets" version="" title="Compound Detail Card" position="(540.0, 240.0)" />
+		<node id="3" name="PharmaFP Search" qualified_name="chem_inf_widgets.widgets.ow_pharmafp_search.OWPharmaFPSearch" project_name="chem-inf-widgets" version="" title="PharmaFP Search" position="(840.0, 240.0)" />
+		<node id="4" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Matched Fragments" position="(835.0, 70.0)" />
+		<node id="5" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Ranked Hits" position="(1115.0, 140.0)" />
+		<node id="6" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem-inf-widgets" version="" title="Hit Compounds" position="(1120.0, 320.0)" />
+		<node id="7" name="Substructure &amp; Similarity Search" qualified_name="chem_inf_widgets.widgets.ow_substructure_search.OWSubstructureSearch" project_name="chem-inf-widgets" version="" title="Motif Search" position="(1115.0, 480.0)" />
+		<node id="8" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Detected Motifs" position="(840.0, 540.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="2" source_node_id="1" sink_node_id="3" source_channel="Data" sink_channel="Reference Data" enabled="true" source_channel_id="data" sink_channel_id="reference_data" />
+		<link id="3" source_node_id="2" sink_node_id="3" source_channel="Query Molecule" sink_channel="Query Molecule" enabled="true" source_channel_id="query_molecule" sink_channel_id="query_molecule" />
+		<link id="4" source_node_id="2" sink_node_id="3" source_channel="Fragment Queries" sink_channel="Fragment Queries" enabled="true" source_channel_id="fragment_queries" sink_channel_id="fragment_queries" />
+		<link id="12" source_node_id="2" sink_node_id="3" source_channel="Motif Queries" sink_channel="Motif Queries" enabled="true" source_channel_id="motif_queries" sink_channel_id="motif_queries" />
+		<link id="5" source_node_id="2" sink_node_id="3" source_channel="Scaffold Query" sink_channel="Scaffold Query" enabled="true" source_channel_id="scaffold_query" sink_channel_id="scaffold_query" />
+		<link id="6" source_node_id="2" sink_node_id="3" source_channel="Search Profile" sink_channel="Search Profile" enabled="true" source_channel_id="search_profile" sink_channel_id="search_profile" />
+		<link id="7" source_node_id="2" sink_node_id="4" source_channel="Matched Fragments" sink_channel="Data" enabled="true" source_channel_id="matched_fragments" sink_channel_id="data" />
+		<link id="8" source_node_id="3" sink_node_id="5" source_channel="Ranked Hits" sink_channel="Data" enabled="true" source_channel_id="ranked_hits" sink_channel_id="data" />
+		<link id="9" source_node_id="3" sink_node_id="6" source_channel="Hit Compounds" sink_channel="Data" enabled="true" source_channel_id="hit_compounds" sink_channel_id="data" />
+		<link id="10" source_node_id="2" sink_node_id="7" source_channel="Motif Queries" sink_channel="Query Data" enabled="true" source_channel_id="motif_queries" sink_channel_id="query_table" />
+		<link id="11" source_node_id="1" sink_node_id="7" source_channel="Data" sink_channel="Compounds" enabled="true" source_channel_id="data" sink_channel_id="compounds" />
+		<link id="13" source_node_id="2" sink_node_id="8" source_channel="Detected Motifs" sink_channel="Data" enabled="true" source_channel_id="detected_motifs" sink_channel_id="data" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties />
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>

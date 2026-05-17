@@ -1,0 +1,8 @@
+name,smiles,activity_class
+aspirin,CC(=O)Oc1ccccc1C(=O)O,active
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,active
+nicotine,CN1CCC[C@H]1c2cccnc2,active
+benzene,c1ccccc1,inactive
+pyridine,c1ccncc1,inactive
+cholesterol,CC(C)CCCC(C)C1CCC2C3CCC4=CC(O)CCC4(C)C3CCC12C,inactive
+salt_example,[Na+].[O-]C(=O)C,flag

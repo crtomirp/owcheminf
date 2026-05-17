@@ -1,0 +1,23 @@
+name,smiles,scaffold_family,pIC50,comment
+anisole_A,COc1ccccc1,phenyl_ether,5.1,aryl ether low potency
+anisole_B,COc1ccc(Cl)cc1,phenyl_ether,6.2,chlorinated analogue
+anisole_C,COc1ccc(F)cc1,phenyl_ether,5.85,fluoro analogue
+anilide_A,CC(=O)Nc1ccccc1,anilide,5.4,anilide parent
+anilide_B,CC(=O)Nc1ccc(Cl)cc1,anilide,7.1,activity cliff candidate
+anilide_C,CC(=O)Nc1ccc(OC)cc1,anilide,6.0,methoxy analogue
+pyridine_A,c1ccncc1,pyridine,4.6,pyridine parent
+pyridine_B,Cc1ccncc1,pyridine,5.2,methyl pyridine
+pyridine_C,Clc1ccncc1,pyridine,6.8,chloro pyridine cliff candidate
+indole_A,c1ccc2[nH]ccc2c1,indole,5.9,indole parent
+indole_B,COc1ccc2[nH]ccc2c1,indole,6.3,methoxy indole
+indole_C,Clc1ccc2[nH]ccc2c1,indole,7.2,chloro indole
+piperidine_A,C1CCNCC1,piperidine,4.8,saturated heterocycle
+piperidine_B,CCN1CCCCC1,piperidine,5.7,N-ethyl analogue
+piperazine_A,C1CNCCN1,piperazine,5.0,piperazine parent
+piperazine_B,CCN1CCNCC1,piperazine,5.9,N-ethyl piperazine
+benzimidazole_A,c1ccc2[nH]cnc2c1,benzimidazole,6.0,benzimidazole parent
+benzimidazole_B,COc1ccc2[nH]cnc2c1,benzimidazole,7.3,methoxy benzimidazole
+quinoline_A,c1ccc2ncccc2c1,quinoline,5.7,quinoline parent
+quinoline_B,COc1ccc2ncccc2c1,quinoline,7.0,methoxy quinoline
+acyclic_A,CCCOCC,acyclic,3.8,acyclic control
+acyclic_B,CCN(CC)CC,acyclic,4.1,acyclic amine control

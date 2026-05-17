@@ -1,0 +1,11 @@
+compound_id,canonical_smiles,standard_type,standard_relation,standard_value,standard_units,assay_id,target_id,comment
+CHEMBL_DEMO_001,c1ccncc1,IC50,=,120,nM,A001,T001,pyridine example
+CHEMBL_DEMO_002,c1ccccc1,IC50,=,4500,nM,A001,T001,benzene example
+CHEMBL_DEMO_003,Cn1cnc2c1c(=O)n(C)c(=O)n2C,IC50,=,75,nM,A001,T001,caffeine-like example
+CHEMBL_DEMO_004,CN1CCC[C@H]1c2cccnc2,IC50,=,32,nM,A002,T001,nicotine-like example
+CHEMBL_DEMO_005,CC(=O)Oc1ccccc1C(=O)O,IC50,=,1850,nM,A002,T001,aspirin-like example
+CHEMBL_DEMO_006,O=[N+]([O-])c1ccccc1,IC50,>,10000,nM,A003,T001,inequality should be rejected by default
+CHEMBL_DEMO_007,not_a_smiles,IC50,=,100,nM,A003,T001,invalid structure
+CHEMBL_DEMO_008,c1ccncc1,IC50,=,150,nM,A004,T001,duplicate pyridine measurement
+CHEMBL_DEMO_009,c1ccncc1,Ki,=,60,nM,A005,T001,different endpoint if endpoint filter is used
+CHEMBL_DEMO_010,c1ccoc1,IC50,=,0.8,uM,A006,T001,unit conversion example

@@ -1,0 +1,11 @@
+compound_id,split,observed,predicted,model
+C001,train,5.10,5.20,random_forest
+C002,train,5.55,5.48,random_forest
+C003,train,5.35,5.40,random_forest
+C004,train,5.48,5.52,random_forest
+C005,train,6.10,6.00,random_forest
+C006,test,6.00,5.70,random_forest
+C007,test,6.25,6.05,random_forest
+C008,test,5.75,6.50,random_forest
+C009,test,6.85,6.70,random_forest
+C010,test,7.10,6.20,random_forest

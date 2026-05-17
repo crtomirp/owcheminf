@@ -1,0 +1,41 @@
+name: chem-inf-widgets
+channels:
+  - conda-forge
+dependencies:
+  # --- Core runtime ---
+  - python=3.12
+  - pip
+  - rdkit>=2024.03
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - pillow
+  - networkx
+  - openjdk
+
+  # --- Notebook + widgets ---
+  - jupyterlab
+  - notebook
+  - ipykernel
+  - ipywidgets
+  - nodejs>=18   # helpful for widget/lab extension dev; remove if you don't need it
+
+  # --- Viz (optional but nice) ---
+  - matplotlib
+  - plotly
+  - py3dmol
+
+  # --- Dev / QA ---
+  - pytest
+  - black
+  - isort
+  - ruff
+  - pre-commit
+  - twine
+  - python-build   # << use this instead of 'build' to avoid solver conflicts
+
+  # --- Install your repo in editable mode ---
+  - pip:
+      - padelpy
+      - -e .

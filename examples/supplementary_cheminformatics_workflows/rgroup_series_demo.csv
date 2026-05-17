@@ -1,0 +1,6 @@
+compound_id,smiles,pIC50,series
+S1,CCOc1ccc(NC(=O)C)cc1,6.1,anilide
+S2,COc1ccc(NC(=O)C)cc1,6.4,anilide
+S3,Clc1ccc(NC(=O)C)cc1,6.8,anilide
+S4,Fc1ccc(NC(=O)C)cc1,6.5,anilide
+S5,Cc1ccc(NC(=O)C)cc1,6.2,anilide

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    env:
+      QT_QPA_PLATFORM: offscreen
+      MPLBACKEND: Agg
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          activate-environment: oc4
+          environment-file: environment.yml
+          auto-activate-base: false
+          use-mamba: true
+          channels: conda-forge
+          channel-priority: strict
+          cache-environment: true
+          cache-environment-key: env-${{ matrix.python-version }}-${{ hashFiles('environment.yml') }}
+
+      - name: Install package in editable mode
+        run: |
+          pip install -e . pytest
+
+      - name: Byte-compile source and tests
+        run: |
+          python -m compileall -q src tests
+
+      - name: Run full unittest suite
+        run: |
+          python -m unittest discover -s tests -v
+
+      - name: Build source and wheel distributions
+        run: |
+          python -m build
+
+      - name: Verify wheel packaging
+        run: |
+          python -m unittest discover -s tests -p 'test_packaging_smoke.py' -v
+          python -m unittest discover -s tests -p 'test_wheel*_smoke.py' -v
+
+      - name: Verify Orange widget imports
+        run: |
+          python -m unittest discover -s tests -p 'test_widget_import_smoke.py' -v
+
+      - name: Verify Widget Smoke Workflows
+        run: |
+          python -m pytest \
+            tests/test_widget_smoke_tester.py \
+            tests/test_audit_trail_viewer.py \
+            tests/test_workflow_provenance_e2e.py \
+            tests/test_qsar_model_hub_optional_optuna.py \
+            -q

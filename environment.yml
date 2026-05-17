@@ -1,0 +1,33 @@
+name: owcheminf
+channels:
+  - conda-forge
+dependencies:
+  # Python 3.11 is currently the safer default for Orange/RDKit/Qt scientific stacks.
+  - python=3.11
+  - pip
+  - python-build
+
+  # Core chemoinformatics and scientific runtime
+  - rdkit
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - requests
+  - pillow
+  - pyyaml
+  - networkx
+  - chardet
+
+  # Orange / Qt runtime from conda-forge where possible
+  - orange3
+  - pyqt=5
+  - pyqtwebengine
+  - qt-main
+  - pyqtgraph
+# Optional installs after environment creation:
+#   pip install -e .[descriptors]
+#   pip install -e .[viewer3d]
+#   pip install -e .[hpo]
+#   pip install -e .[deep-learning]

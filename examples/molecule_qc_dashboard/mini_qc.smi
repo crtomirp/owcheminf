@@ -1,0 +1,5 @@
+CC(=O)Oc1ccccc1C(=O)O aspirin
+CC(=O)Oc1ccccc1C(=O)O aspirin_duplicate
+[Na+].[O-]C(=O)C sodium_acetate
+C[N+](C)(C)C quaternary_ammonium
+C[N](C)(C)(C)C invalid_valence

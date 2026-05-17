@@ -1,0 +1,9 @@
+name,smiles,class,note
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,xanthine,query-like stimulant
+theobromine,Cn1c(=O)nc2[nH]cnc2c1=O,xanthine,caffeine analogue
+theophylline,Cn1c(=O)n(C)c2[nH]cnc2c1=O,xanthine,caffeine analogue
+nicotine,CN1CCC[C@H]1c2cccnc2,alkaloid,pyridine plus tertiary amine
+pyridine,c1ccncc1,heteroaromatic,simple heterocycle
+indole,c1ccc2[nH]ccc2c1,fused heterocycle,indole core
+benzene,c1ccccc1,carbocycle,simple aromatic
+aspirin,CC(=O)Oc1ccccc1C(=O)O,drug,salicylate ester

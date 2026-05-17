@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 08 - Outlier Hunting" description="Find descriptor-space outliers, compare them with applicability domain decisions, and inspect unusual compounds.">
+    <nodes>
+        <node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="VEGFR2 QSAR CSV" position="(80.0, 270.0)" />
+        <node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem_inf_widgets" version="" title="Mol Standardizer" position="(280.0, 270.0)" />
+        <node id="2" name="Fingerprint Generator" qualified_name="chem_inf_widgets.widgets.ow_fingerprint_generator.OWFingerprintGenerator" project_name="chem_inf_widgets" version="" title="Fingerprint Generator" position="(510.0, 270.0)" />
+        <node id="3" name="PCA" qualified_name="Orange.widgets.unsupervised.owpca.OWPCA" project_name="Orange3" version="" title="PCA" position="(740.0, 120.0)" />
+        <node id="4" name="Scatter Plot" qualified_name="Orange.widgets.visualize.owscatterplot.OWScatterPlot" project_name="Orange3" version="" title="Projection Scatter" position="(980.0, 120.0)" />
+        <node id="5" name="Outliers" qualified_name="Orange.widgets.data.owoutliers.OWOutliers" project_name="Orange3" version="" title="Outliers" position="(740.0, 320.0)" />
+        <node id="6" name="Applicability Domain" qualified_name="chem_inf_widgets.widgets.ow_applicability_domain.OWApplicabilityDomain" project_name="chem_inf_widgets" version="" title="Applicability Domain" position="(980.0, 320.0)" />
+        <node id="7" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="AD Results For Outliers" position="(1250.0, 250.0)" />
+        <node id="8" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem_inf_widgets" version="" title="Outlier Molecules" position="(1250.0, 420.0)" />
+    </nodes>
+    <links>
+        <link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="2" source_node_id="2" sink_node_id="3" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="3" source_node_id="3" sink_node_id="4" source_channel="Transformed Data" sink_channel="Data" enabled="true" source_channel_id="transformed_data" sink_channel_id="data" />
+        <link id="4" source_node_id="2" sink_node_id="5" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="5" source_node_id="5" sink_node_id="6" source_channel="Outliers" sink_channel="Data" enabled="true" source_channel_id="outliers" sink_channel_id="data" />
+        <link id="6" source_node_id="2" sink_node_id="6" source_channel="Fingerprints" sink_channel="Reference Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="reference_data" />
+        <link id="7" source_node_id="6" sink_node_id="7" source_channel="Data Results" sink_channel="Data" enabled="true" source_channel_id="data_results" sink_channel_id="data" />
+        <link id="8" source_node_id="6" sink_node_id="8" source_channel="Data Results" sink_channel="Data" enabled="true" source_channel_id="data_results" sink_channel_id="data" />
+    </links>
+    <annotations />
+    <thumbnail />
+    <node_properties />
+    <session_state>
+        <window_groups />
+    </session_state>
+</scheme>

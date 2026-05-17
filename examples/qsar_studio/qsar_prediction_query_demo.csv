@@ -1,0 +1,7 @@
+compound_id,canonical_smiles,MW,LogP,TPSA,HBD,HBA,RotB,aromatic_rings,hetero_atoms,fp_001,fp_002,fp_003,fp_004,fp_005
+Q001,CN1CCC[C@H]1c2cccnc2,162.23,1.17,16.1,0,2,2,1,2,0,1,1,1,0
+Q002,c1ccc2[nH]ccc2c1,117.15,2.14,15.8,1,1,0,2,1,1,0,0,1,0
+Q003,c1ccc2ncccc2c1,129.16,2.03,12.9,0,1,0,2,1,1,1,1,0,0
+Q004,CCN(CC)CC(=O)Nc1c(C)cccc1C,234.34,2.26,32.3,1,2,6,1,2,1,0,1,0,1
+Q005,COc1ccc2[nH]c(nc2c1)S(=O)Cc3ncc(C)c(OC)c3C,345.42,2.23,86.0,1,7,6,3,7,0,1,1,1,1
+Q006,CC(=O)CC(c1ccccc1)c2c(O)c3ccccc3oc2=O,308.33,3.0,63.6,1,4,4,3,4,1,1,0,0,1

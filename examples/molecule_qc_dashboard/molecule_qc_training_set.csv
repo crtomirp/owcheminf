@@ -1,0 +1,12 @@
+name,smiles,class,comment
+aspirin,CC(=O)Oc1ccccc1C(=O)O,clean_drug_like,neutral single-fragment molecule
+aspirin_duplicate,CC(=O)Oc1ccccc1C(=O)O,duplicate,same canonical structure as aspirin
+sodium_acetate,[Na+].[O-]C(=O)C,salt,multi-fragment salt
+quaternary_ammonium,C[N+](C)(C)C,charged,valid permanently charged compound
+ferrocene_like,[Fe]C1=CC=CC=C1,metal_contains,metal-containing structure
+invalid_valence,C[N](C)(C)(C)C,invalid,intentionally problematic valence
+empty,,invalid,empty SMILES
+small_molecule,O,too_small,below default heavy atom threshold
+unspecified_chiral,CC(O)Cl,stereo_review,possible unassigned chiral center
+nitrobenzene,O=[N+]([O-])c1ccccc1,charged_functional_group,charge-separated nitro representation
+large_lipid,CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,large,large hydrocarbon chain

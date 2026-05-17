@@ -1,0 +1,6 @@
+target_query,organism_hint,teaching_note
+acetylcholinesterase,Homo sapiens,Good for discussing target confidence and species differences
+dopamine receptor D2,Homo sapiens,Good for discussing target families and selectivity
+carbonic anhydrase II,Homo sapiens,Good for comparing isoforms
+EGFR,Homo sapiens,Good for discussing kinase assays and assay heterogeneity
+HIV protease,Human immunodeficiency virus,Good for discussing non-human targets and antiviral datasets

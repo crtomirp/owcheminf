@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Mol Editor Smoke Test" description="Quick regression workflow for comparing Mol Editor and Mol Ketcher on the same SMILES input table.">
+	<nodes>
+		<node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="SMILES Input" position="(70.0, 240.0)" />
+		<node id="1" name="Mol Editor" qualified_name="chem_inf_widgets.widgets.ow_mol_editor.OWMolSketcher" project_name="chem-inf-widgets" version="" title="Mol Editor" position="(320.0, 150.0)" />
+		<node id="2" name="Mol Ketcher" qualified_name="chem_inf_widgets.widgets.ow_mol_ketcher_editor.OWMolKetcher" project_name="chem-inf-widgets" version="" title="Mol Ketcher" position="(320.0, 340.0)" />
+		<node id="3" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Mol Editor Output" position="(620.0, 90.0)" />
+		<node id="4" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem-inf-widgets" version="" title="Mol Editor Viewer" position="(620.0, 210.0)" />
+		<node id="5" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Mol Ketcher Output" position="(620.0, 300.0)" />
+		<node id="6" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem-inf-widgets" version="" title="Mol Ketcher Viewer" position="(620.0, 420.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="1" source_node_id="0" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="2" source_node_id="1" sink_node_id="3" source_channel="Compounds" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="3" source_node_id="1" sink_node_id="4" source_channel="Compounds" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="4" source_node_id="2" sink_node_id="5" source_channel="Compounds" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="5" source_node_id="2" sink_node_id="6" source_channel="Compounds" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties />
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>

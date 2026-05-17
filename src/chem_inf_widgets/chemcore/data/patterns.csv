@@ -1,0 +1,19 @@
+pattern_id,name,category,smarts,priority,show_by_default,source
+alcohol,Alcohol,functional_groups,"[OX2H][CX4]",10,true,checkmol_idea
+phenol,Phenol,functional_groups,"[OX2H]c",30,true,checkmol_idea
+amine_primary,Primary amine,functional_groups,"[NX3;H2][CX4]",10,true,checkmol_idea
+amide,Amide,functional_groups,"[NX3][CX3](=[OX1])[#6]",40,true,checkmol_idea
+carboxylic_acid,Carboxylic acid,functional_groups,"[CX3](=O)[OX2H1]",50,true,checkmol_idea
+ester,Ester,functional_groups,"[#6][CX3](=O)[OX2H0][#6]",35,true,checkmol_idea
+aldehyde,Aldehyde,functional_groups,"[CX3H1](=O)[#6]",20,true,checkmol_idea
+ketone,Ketone,functional_groups,"[#6][CX3](=O)[#6]",20,true,checkmol_idea
+nitrile,Nitrile,functional_groups,"[CX2]#N",20,true,checkmol_idea
+nitro,Nitro,functional_groups,"[$([NX3](=O)=O),$([N+](=O)[O-])]",25,true,checkmol_idea
+sulfonamide,Sulfonamide,functional_groups,"S(=O)(=O)N",35,true,checkmol_idea
+halogenated,Halogenated,functional_groups,"[F,Cl,Br,I]",5,true,checkmol_idea
+aromatic_ring,Aromatic ring,ringsystems,"a1aaaaa1",20,true,smartchemist_idea
+pyridine,Pyridine,ringsystems,"n1ccccc1",30,true,smartchemist_idea
+imidazole,Imidazole,ringsystems,"n1cc[nH]c1",30,true,smartchemist_idea
+indole,Indole,biologicals,"c1ccc2[nH]ccc2c1",40,true,smartchemist_idea
+purine,Purine,biologicals,"n1cnc2ncnc12",45,true,smartchemist_idea
+pyrimidine,Pyrimidine,biologicals,"n1ccncc1",35,true,smartchemist_idea

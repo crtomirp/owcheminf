@@ -1,0 +1,7 @@
+compound_id,name,smiles,source,activity_note
+M001,Aspirin,CC(=O)Oc1ccccc1C(=O)O,teaching,valid drug-like molecule
+M002,Caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,teaching,heterocyclic drug-like molecule
+M003,Pyridine,c1ccncc1,teaching,aromatic heterocycle
+M004,Pyridine kekule,C1=CC=NC=C1,teaching,kekulized aromatic heterocycle
+M005,Sodium acetate,[Na+].[O-]C(=O)C,teaching,multi-fragment salt
+M006,Invalid example,C1CC,teaching,intentionally invalid ring closure

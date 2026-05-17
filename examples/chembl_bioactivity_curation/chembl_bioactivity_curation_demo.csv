@@ -1,0 +1,11 @@
+molecule_id,canonical_smiles,target_id,target_name,standard_type,standard_relation,standard_value,standard_units,pchembl_value,assay_id,assay_type,target_confidence_score,data_validity_comment,include_for_qsar,curation_note
+CMPD_001,CCOc1ccc2nc(S(N)(=O)=O)sc2c1,TGT_001,Example enzyme,IC50,=,25,nM,7.60,ASSAY_001,B,9,,yes,Good exact IC50 in nM
+CMPD_002,O=[N+]([O-])c1ccc(N)cc1,TGT_001,Example enzyme,IC50,>,10000,nM,,ASSAY_001,B,9,,no,Censored value; exclude from regression
+CMPD_003,CN1CCN(CC1)c2ncccn2,TGT_001,Example enzyme,Ki,=,0.15,uM,6.82,ASSAY_002,B,9,,maybe,Different endpoint; do not mix without justification
+CMPD_004,CC(C)NCC(O)COc1ccccc1,TGT_001,Example enzyme,IC50,=,0.050,uM,7.30,ASSAY_003,F,8,,yes,Exact IC50; unit conversion needed
+CMPD_004,CC(C)NCC(O)COc1ccccc1,TGT_001,Example enzyme,IC50,=,60,nM,7.22,ASSAY_004,B,8,,yes,Duplicate compound; aggregate with CMPD_004 record
+CMPD_005,C[N+](C)(C)CCO,TGT_001,Example enzyme,IC50,=,500,nM,6.30,ASSAY_005,B,7,Potential author error,no,Validity comment requires inspection
+CMPD_006,CC(=O)Oc1ccccc1C(=O)O,TGT_002,Related enzyme,IC50,=,1200,nM,5.92,ASSAY_006,B,4,,no,Low confidence or different target
+CMPD_007,c1ccncc1,TGT_001,Example enzyme,EC50,=,3000,nM,5.52,ASSAY_007,F,9,,maybe,Functional endpoint differs from binding/potency endpoint
+CMPD_008,CCN(CC)CC(=O)Nc1c(C)cccc1C,TGT_001,Example enzyme,IC50,=,80,nM,7.10,ASSAY_008,B,9,,yes,Good candidate
+CMPD_009,invalid_smiles,TGT_001,Example enzyme,IC50,=,90,nM,7.05,ASSAY_009,B,9,,no,Invalid structure

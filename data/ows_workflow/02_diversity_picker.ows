@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Teaching 02 - Diversity Picker" description="Load a compound collection, standardize it, inspect fingerprints, and select a diverse subset.">
+    <nodes>
+        <node id="0" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="Input Library CSV" position="(80.0, 250.0)" />
+        <node id="1" name="Mol Standardizer" qualified_name="chem_inf_widgets.widgets.ow_mol_standardizer.OWMolStandardizer" project_name="chem_inf_widgets" version="" title="Mol Standardizer" position="(280.0, 250.0)" />
+        <node id="2" name="Fingerprint Generator" qualified_name="chem_inf_widgets.widgets.ow_fingerprint_generator.OWFingerprintGenerator" project_name="chem_inf_widgets" version="" title="Fingerprint Generator" position="(500.0, 110.0)" />
+        <node id="3" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Fingerprint Table" position="(740.0, 110.0)" />
+        <node id="4" name="Diversity Picker" qualified_name="chem_inf_widgets.widgets.ow_diversity_picker.OWDiversityPicker" project_name="chem_inf_widgets" version="" title="Diversity Picker" position="(500.0, 300.0)" />
+        <node id="5" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Selected Data" position="(760.0, 230.0)" />
+        <node id="6" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Remainder Data" position="(760.0, 380.0)" />
+        <node id="7" name="Molecular Viewer" qualified_name="chem_inf_widgets.widgets.ow_mol_viewer.OWMolViewer" project_name="chem_inf_widgets" version="" title="Selected Molecules" position="(990.0, 230.0)" />
+        <node id="8" name="Scaffold Analysis" qualified_name="chem_inf_widgets.widgets.ow_scaffold_analysis.OWScaffoldAnalysis" project_name="chem_inf_widgets" version="" title="Scaffold Analysis" position="(990.0, 380.0)" />
+        <node id="9" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWTable" project_name="Orange3" version="" title="Selected Scaffold Summary" position="(1230.0, 380.0)" />
+    </nodes>
+    <links>
+        <link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="1" source_node_id="1" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="2" source_node_id="2" sink_node_id="3" source_channel="Fingerprints" sink_channel="Data" enabled="true" source_channel_id="fingerprints" sink_channel_id="data" />
+        <link id="3" source_node_id="1" sink_node_id="4" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+        <link id="4" source_node_id="4" sink_node_id="5" source_channel="Selected Data" sink_channel="Data" enabled="true" source_channel_id="selected_data" sink_channel_id="data" />
+        <link id="5" source_node_id="4" sink_node_id="6" source_channel="Remainder Data" sink_channel="Data" enabled="true" source_channel_id="remainder_data" sink_channel_id="data" />
+        <link id="6" source_node_id="4" sink_node_id="7" source_channel="Selected Data" sink_channel="Data" enabled="true" source_channel_id="selected_data" sink_channel_id="data" />
+        <link id="7" source_node_id="4" sink_node_id="8" source_channel="Selected Data" sink_channel="Data" enabled="true" source_channel_id="selected_data" sink_channel_id="data" />
+        <link id="8" source_node_id="8" sink_node_id="9" source_channel="Scaffold Summary" sink_channel="Data" enabled="true" source_channel_id="scaffold_summary" sink_channel_id="data" />
+    </links>
+    <annotations />
+    <thumbnail />
+    <node_properties />
+    <session_state>
+        <window_groups />
+    </session_state>
+</scheme>
