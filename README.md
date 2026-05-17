@@ -28,6 +28,9 @@
 - bug reports: [open a bug report](https://github.com/crtomirp/owcheminf/issues/new?template=bug_report.md)
 - feature ideas: [open a feature request](https://github.com/crtomirp/owcheminf/issues/new?template=feature_request.md)
 - pull requests: open against `main`
+- contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- change log: [CHANGELOG.md](CHANGELOG.md)
+- security policy: [SECURITY.md](SECURITY.md)
 
 ## Quick Setup
 
