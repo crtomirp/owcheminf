@@ -29,12 +29,14 @@ if [[ -n "$(git status --short)" ]]; then
   exit 1
 fi
 
-PYPROJECT_VERSION="$(python3 - <<'PY'
-import pathlib, tomllib
-data = tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))
-print(data['project']['version'])
-PY
+PYPROJECT_VERSION="$(
+  grep -m1 '^version = "' pyproject.toml | sed -E 's/^version = "([^"]+)"$/\1/'
 )"
+
+if [[ -z "${PYPROJECT_VERSION}" ]]; then
+  echo "Could not determine project version from pyproject.toml." >&2
+  exit 1
+fi
 
 if [[ "${PYPROJECT_VERSION}" != "${VERSION}" ]]; then
   echo "pyproject.toml version is '${PYPROJECT_VERSION}', expected '${VERSION}'." >&2
