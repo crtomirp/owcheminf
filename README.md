@@ -1,6 +1,7 @@
 # chem-inf-widgets
 
 [![CI](https://github.com/crtomirp/owcheminf/actions/workflows/ci.yml/badge.svg)](https://github.com/crtomirp/owcheminf/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/crtomirp/owcheminf?display_name=tag)](https://github.com/crtomirp/owcheminf/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
@@ -31,6 +32,8 @@
 - contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 - change log: [CHANGELOG.md](CHANGELOG.md)
 - security policy: [SECURITY.md](SECURITY.md)
+- release process: [docs/release_process.md](docs/release_process.md)
+- next release plan: [docs/releases/v0.2.1-plan.md](docs/releases/v0.2.1-plan.md)
 
 ## Quick Setup
 

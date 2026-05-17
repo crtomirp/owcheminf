@@ -176,6 +176,7 @@ python -m unittest discover -s tests -p 'test_*smoke.py' -v
 Additional notes are in:
 
 - [docs/packaging.md](../../docs/packaging.md)
+- [docs/release_process.md](../../docs/release_process.md)
 - [docs/troubleshooting.md](../../docs/troubleshooting.md)
 
 ## Development Notes

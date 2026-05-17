@@ -1,0 +1,55 @@
+name: Release Assets
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-assets:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.11"
+          activate-environment: oc4
+          environment-file: environment.yml
+          auto-activate-base: false
+          use-mamba: true
+          channels: conda-forge
+          channel-priority: strict
+
+      - name: Install build tooling
+        run: |
+          python -m pip install build twine
+
+      - name: Build release distributions
+        run: |
+          python -m build
+
+      - name: Validate release metadata
+        run: |
+          python -m twine check dist/*
+
+      - name: Upload artifacts to workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: dist/*
+
+      - name: Attach distributions to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
