@@ -35,6 +35,7 @@
 - release process: [docs/release_process.md](docs/release_process.md)
 - next release plan: [docs/releases/v0.2.1-plan.md](docs/releases/v0.2.1-plan.md)
 - release runbook: [docs/releases/v0.2.1-runbook.md](docs/releases/v0.2.1-runbook.md)
+- release prep helper: `./scripts/prepare_release.sh 0.2.1`
 
 ## Quick Setup
 

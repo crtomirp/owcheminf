@@ -21,6 +21,13 @@ This document describes the practical release flow for `chem-inf-widgets` in the
 
 ## Local Release Checks
 
+To prepare the next release metadata quickly:
+
+```bash
+./scripts/prepare_release.sh --dry-run 0.2.1
+./scripts/prepare_release.sh 0.2.1
+```
+
 Use the project environment:
 
 ```bash
