@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from typing import List, Optional
 
+from AnyQt.QtCore import Qt
 from AnyQt.QtWidgets import QFileDialog, QListWidget, QListWidgetItem
 from Orange.data import Table
 from Orange.widgets import gui
@@ -53,7 +54,7 @@ class OWSdfWriter(OWWidget, ConcurrentWidgetMixin):
         self._last_save_attempt_count: int = 0
 
         box = gui.widgetBox(self.controlArea, "Output file")
-        gui.lineEdit(box, self, "sdf_path", label="SDF path", orientation="vertical")
+        gui.lineEdit(box, self, "sdf_path", label="SDF path", orientation=Qt.Vertical)
         gui.button(box, self, "Browse...", callback=self._browse)
 
         opts = gui.widgetBox(self.controlArea, "Options")

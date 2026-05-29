@@ -1,6 +1,7 @@
 import sys
 import unittest
 import os
+import re
 from importlib import resources
 from pathlib import Path
 
@@ -26,6 +27,31 @@ class PackagingSmokeTests(unittest.TestCase):
         self.assertTrue(hasattr(widgets_pkg, "_CATEGORY_SPECS"))
         self.assertTrue(len(widgets_pkg._CATEGORY_SPECS) >= 1)
         self.assertTrue(all(bool(spec["icon"]) for spec in widgets_pkg._CATEGORY_SPECS))
+
+    def test_widget_category_modules_are_unique_and_qsar_palette_is_complete(self):
+        import chem_inf_widgets.widgets as widgets_pkg
+
+        all_modules = [
+            module_name
+            for spec in widgets_pkg._CATEGORY_SPECS
+            for module_name in spec["modules"]
+        ]
+        self.assertEqual(len(all_modules), len(set(all_modules)))
+
+        qsar_spec = next(
+            spec for spec in widgets_pkg._CATEGORY_SPECS
+            if spec["name"] == "Cheminf - QSAR"
+        )
+        qsar_modules = set(qsar_spec["modules"])
+        self.assertTrue(
+            {
+                "ow_qsar_dataset_builder",
+                "ow_descriptor_explorer",
+                "ow_descriptor_filter",
+                "ow_qsar_model_hub",
+                "ow_qsar_validation_dashboard",
+            }.issubset(qsar_modules)
+        )
 
     def test_pains_resource_is_packaged(self):
         resource = resources.files("chem_inf_widgets.chemcore.data").joinpath("smartspains.json")
@@ -55,6 +81,14 @@ class PackagingSmokeTests(unittest.TestCase):
     def test_jsme_panel_exists(self):
         resource = resources.files("chem_inf_widgets.chemcore").joinpath("resources/jsme/jsme_panel.html")
         self.assertTrue(resource.is_file(), "JSME panel HTML should be packaged with chemcore resources")
+
+    def test_package_version_matches_project_metadata(self):
+        import chem_inf_widgets
+
+        pyproject_text = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+        match = re.search(r'^version\s*=\s*"([^"]+)"', pyproject_text, re.MULTILINE)
+        self.assertIsNotNone(match, "Project version should be declared in pyproject.toml")
+        self.assertEqual(chem_inf_widgets.__version__, match.group(1))
 
 
 if __name__ == "__main__":

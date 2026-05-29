@@ -85,6 +85,8 @@ orange-canvas
 
 ### Input / Output
 
+- `Molecule Import Hub`
+- `Molecule Export Hub`
 - `SDF Reader`
 - `SDF Writer`
 
@@ -130,6 +132,15 @@ orange-canvas
 
 ### Modeling
 
+- `QSAR Dataset Builder`
+- `QSAR Descriptor Explorer`
+- `Descriptor Pre-selector`
+- `QSAR/QSPR Model Hub`
+- `QSAR Validation Dashboard`
+- `Applicability Domain`
+- `Model Explanation`
+- `QSAR Report Generator`
+- `QSAR Prediction Packager`
 - `QSAR Regression`
 - `MLR Model Selection`
 

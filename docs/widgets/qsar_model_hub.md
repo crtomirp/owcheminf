@@ -1,6 +1,8 @@
 # QSAR Model Hub
 
 `QSAR Model Hub` trains a compact regression model from a QSAR-ready descriptor or fingerprint table.
+The `Model` output is a prediction-ready bundle, and the widget can also export a FAIR-style model package
+with the pickle, manifest, full feature contract and selected-feature list for later reuse.
 
 Recommended workflow:
 
@@ -10,10 +12,18 @@ QSAR Dataset Builder → Mol Descriptors / Fingerprint Generator → QSAR Model 
 
 Outputs:
 
-- **Model**: fitted scikit-learn pipeline.
+- **Model**: prediction-ready `QSARPredictionModelBundle` for direct use in `QSAR Prediction Packager`.
 - **Predictions**: train/test predictions with observed, predicted, residual and split columns.
 - **Metrics**: train, test and cross-validation metrics.
 - **Model Summary**: compact provenance summary.
+
+Export:
+
+- Use `Export FAIR model bundle` after training to write:
+- `*.model.pkl`
+- `*.manifest.json`
+- `*.features.txt`
+- `*.selected_features.txt`
 
 CLI:
 

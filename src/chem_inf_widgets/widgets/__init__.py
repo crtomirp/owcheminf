@@ -40,6 +40,7 @@ _CATEGORY_SPECS = (
         "priority": 1000,
         "modules": (
             "ow_molecule_import_hub",
+            "ow_molecule_export_hub",
             "ow_sdf_reader",
             "ow_sdf_writer",
             "ow_chembl_browser",
@@ -86,14 +87,16 @@ _CATEGORY_SPECS = (
     },
     {
         "name": "Cheminf - QSAR",
-        "description": "Build modeling-ready datasets, train QSAR/QSPR models, and package predictions.",
+        "description": "Build QSAR-ready datasets, audit descriptors, train and validate models, and assemble reports or prediction packages.",
         "icon": "icons/categories/cheminf_modeling.svg",
         "background": "#FFF7ED",
         "priority": 1003,
         "modules": (
             "ow_qsar_dataset_builder",
+            "ow_descriptor_explorer",
             "ow_descriptor_filter",
             "ow_qsar_model_hub",
+            "ow_qsar_validation_dashboard",
             "ow_applicability_domain",
             "ow_model_explanation",
             "ow_qsar_report_generator",
@@ -125,7 +128,6 @@ _CATEGORY_SPECS = (
             "ow_cyclic_registry_fingerprint",
             "ow_isida_descriptors",
             "ow_padel_descriptors",
-            "ow_qsar_validation_dashboard",
             "ow_ad_workbench",
             "ow_atom_contribution_map",
             "ow_qsar_regression",

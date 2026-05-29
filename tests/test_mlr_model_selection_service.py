@@ -13,9 +13,9 @@ if str(SRC_ROOT) not in sys.path:
 from chem_inf_widgets.chemcore.services import mlr_model_selection_service as mlr_service  # noqa: E402
 
 try:
-    from Orange.data import ContinuousVariable, Domain, Table
+    from Orange.data import ContinuousVariable, Domain, StringVariable, Table
 except Exception:  # pragma: no cover
-    ContinuousVariable = Domain = Table = None  # type: ignore
+    ContinuousVariable = Domain = StringVariable = Table = None  # type: ignore
 
 
 @unittest.skipIf(Table is None, "Orange is required for MLR service tests")
@@ -36,6 +36,36 @@ class MLRModelSelectionServiceTests(unittest.TestCase):
         self.assertIn("train_y", names)
         self.assertIn("train_y_pred", names)
         self.assertIn("train_in_AD", names)
+
+    def test_results_table_preserves_payload_from_source_table(self):
+        domain = Domain(
+            [ContinuousVariable("x1")],
+            class_vars=[ContinuousVariable("target")],
+            metas=[StringVariable("name")],
+        )
+        table = Table.from_numpy(
+            domain,
+            X=np.array([[1.0], [2.0]], dtype=float),
+            Y=np.array([[0.1], [0.2]], dtype=float),
+            metas=np.array([["mol-1"], ["mol-2"]], dtype=object),
+            ids=np.array([101, 102], dtype=int),
+            attributes={"source": "unit-test"},
+        )
+
+        out = mlr_service.results_table(
+            table,
+            np.array([0.1, 0.2], dtype=float),
+            np.array([0.11, 0.19], dtype=float),
+            np.array([0.2, 0.3], dtype=float),
+            np.array([0.4, -0.4], dtype=float),
+            np.array([True, True]),
+            prefix="train",
+        )
+
+        np.testing.assert_allclose(out.Y, table.Y)
+        np.testing.assert_array_equal(out.metas, table.metas)
+        np.testing.assert_array_equal(out.ids, table.ids)
+        self.assertEqual(out.attributes.get("source"), "unit-test")
 
     def test_build_summary_html_mentions_selected_descriptors(self):
         html = mlr_service.build_summary_html(

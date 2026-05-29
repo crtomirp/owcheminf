@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pyqtgraph as pg
 
-from AnyQt.QtCore import Qt, pyqtSlot as Slot
+from AnyQt.QtCore import Qt, QTimer, pyqtSlot as Slot
 from AnyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -18,6 +18,7 @@ from AnyQt.QtWidgets import (
     QProgressBar,
     QPushButton,
     QSpinBox,
+    QSizePolicy,
     QSplitter,
     QTabWidget,
     QTableWidget,
@@ -161,6 +162,10 @@ def _df_to_table(df: pd.DataFrame, class_col: str = "", *, modeling_clean: bool 
 # ── Widget ────────────────────────────────────────────────────────────────
 
 class OWDescriptorFilter(OWWidget):
+    _CONTROL_PANEL_TARGET_WIDTH = 380
+    _CONTROL_PANEL_MIN_WIDTH = 340
+    _MAIN_PANEL_MIN_WIDTH = 760
+
     name = "Descriptor Pre-selector"
     description = (
         "Remove uninformative descriptors: high missing-value rate, "
@@ -201,7 +206,111 @@ class OWDescriptorFilter(OWWidget):
 
         self._build_control_area()
         self._build_main_area()
+        self._apply_left_right_ratio()
+        QTimer.singleShot(0, self._apply_left_right_ratio)
+        QTimer.singleShot(250, self._apply_left_right_ratio)
         self._set_status("Awaiting data…", ok=True)
+
+    # ── Layout helpers ────────────────────────────────────────────────────
+
+    def _apply_left_right_ratio(self) -> None:
+        """Force a usable 30:70 layout: compact controls, wide report.
+
+        Orange wraps ``controlArea``/``mainArea`` differently across Qt versions.
+        The safest behaviour is therefore: keep the control side physically
+        narrow, make the report side expandable, and only then set splitter
+        sizes by locating the real children.
+        """
+        try:
+            # Keep the visible control panel itself compact.
+            self.controlArea.setMinimumWidth(self._CONTROL_PANEL_MIN_WIDTH)
+            self.controlArea.setMaximumWidth(self._CONTROL_PANEL_TARGET_WIDTH)
+            self.controlArea.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+            self.mainArea.setMinimumWidth(self._MAIN_PANEL_MIN_WIDTH)
+            self.mainArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        except Exception:
+            pass
+
+        def _contains(parent, child) -> bool:
+            try:
+                w = child
+                while w is not None:
+                    if w is parent:
+                        return True
+                    w = w.parentWidget()
+            except Exception:
+                return False
+            return False
+
+        candidate_splitters = []
+        for attr in ("splitter", "_splitter"):
+            splitter = getattr(self, attr, None)
+            if splitter is not None:
+                candidate_splitters.append(splitter)
+        try:
+            candidate_splitters.extend(self.findChildren(QSplitter))
+        except Exception:
+            pass
+
+        seen = set()
+        for splitter in candidate_splitters:
+            if splitter is None or id(splitter) in seen or not hasattr(splitter, "setSizes"):
+                continue
+            seen.add(id(splitter))
+            try:
+                if splitter.orientation() != Qt.Horizontal:
+                    continue
+                count = splitter.count()
+                control_i = main_i = -1
+                for i in range(count):
+                    child = splitter.widget(i)
+                    if child is self.controlArea or _contains(child, self.controlArea):
+                        control_i = i
+                    if child is self.mainArea or _contains(child, self.mainArea):
+                        main_i = i
+                if control_i < 0 or main_i < 0 or control_i == main_i:
+                    continue
+
+                control_widget = splitter.widget(control_i)
+                main_widget = splitter.widget(main_i)
+                for widget in (control_widget, self.controlArea):
+                    if widget is None:
+                        continue
+                    try:
+                        widget.setMinimumWidth(self._CONTROL_PANEL_MIN_WIDTH)
+                        widget.setMaximumWidth(self._CONTROL_PANEL_TARGET_WIDTH)
+                        widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+                    except Exception:
+                        pass
+                if main_widget is not None:
+                    try:
+                        main_widget.setMinimumWidth(self._MAIN_PANEL_MIN_WIDTH)
+                        main_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                    except Exception:
+                        pass
+
+                sizes = [120] * count
+                sizes[control_i] = self._CONTROL_PANEL_TARGET_WIDTH
+                sizes[main_i] = max(
+                    self._MAIN_PANEL_MIN_WIDTH,
+                    int(self.width() * 0.72),
+                )
+                splitter.setSizes(sizes)
+                splitter.setStretchFactor(control_i, 0)
+                splitter.setStretchFactor(main_i, 1)
+                splitter.setCollapsible(control_i, False)
+                splitter.setCollapsible(main_i, False)
+                break
+            except Exception:
+                pass
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        QTimer.singleShot(0, self._apply_left_right_ratio)
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        QTimer.singleShot(0, self._apply_left_right_ratio)
 
     # ── Control area ──────────────────────────────────────────────────────
 
@@ -341,9 +450,11 @@ class OWDescriptorFilter(OWWidget):
     def _build_main_area(self) -> None:
         self._tabs = QTabWidget()
 
-        # Summary
+        # Summary / report
         self._txt_summary = QTextBrowser()
-        self._tabs.addTab(self._txt_summary, "Summary")
+        self._txt_summary.setOpenExternalLinks(True)
+        self._txt_summary.setStyleSheet("background:#ffffff; border:1px solid #E2E8F0; border-radius:8px;")
+        self._tabs.addTab(self._txt_summary, "Report")
 
         # Variance distribution
         var_w = QWidget()
@@ -537,10 +648,12 @@ class OWDescriptorFilter(OWWidget):
 
         self._populate_summary(res)
         if output_warnings:
-            current = self._txt_summary.toPlainText()
-            self._txt_summary.setPlainText(
-                current + "\n\nOutput warnings:\n" + "\n".join(f"- {w}" for w in output_warnings)
-            )
+            import html as _html
+            current = self._txt_summary.toHtml()
+            warn_html = "<h2>Output warnings</h2><ul>" + "".join(
+                f"<li>{_html.escape(w)}</li>" for w in output_warnings
+            ) + "</ul>"
+            self._txt_summary.setHtml(current.replace("</body>", warn_html + "</body>"))
         self._populate_variance_plot(res)
         self._populate_missing_plot(res)
         self._populate_corr_table(res)
@@ -567,90 +680,171 @@ class OWDescriptorFilter(OWWidget):
     # ── Populate ──────────────────────────────────────────────────────────
 
     def _populate_summary(self, r: DescriptorFilterResult) -> None:
-        lines = [
-            "Descriptor Pre-selector",
-            "══════════════════════════════════════",
-            f"  Input features  : {r.n_input}",
-            f"  Output features : {r.n_output}",
-            f"  Reduction       : {r.n_input - r.n_output} removed "
-            f"({int(100*(r.n_input-r.n_output)/r.n_input) if r.n_input else 0}%)",
-            "",
-            "Step 1 — Empty descriptor filter",
-            "──────────────────────────────────────",
-            f"  Removed : {len(r.removed_empty)}",
-            f"  Remaining: {r.n_after_empty}",
+        """Render a rich dashboard-style report in the Overview tab."""
+        def pct(part: int | float, total: int | float) -> str:
+            return f"{100.0 * float(part) / float(total):.1f}%" if total else "0.0%"
+
+        def esc(x) -> str:
+            import html
+            return html.escape(str(x))
+
+        def card(title: str, value: str, sub: str = "", accent: str = "#2563EB") -> str:
+            return (
+                f"<td class='kpi' style='border-top:4px solid {accent};'>"
+                f"<div class='kpi-value' style='color:{accent};'>{esc(value)}</div>"
+                f"<div class='kpi-title'>{esc(title)}</div>"
+                f"<div class='kpi-sub'>{esc(sub)}</div>"
+                f"</td>"
+            )
+
+        n_input = int(r.n_input)
+        n_output = int(r.n_output)
+        removed_total = max(0, n_input - n_output)
+        removed_pct = pct(removed_total, n_input)
+        removed_cap = getattr(r, "removed_pre_correlation_cap", []) or []
+        removed_final = getattr(r, "removed_final_cap", []) or []
+        n_after_corr = getattr(r, "n_after_correlation", n_output)
+        n_after_precap = getattr(r, "n_after_pre_correlation_cap", r.n_after_variance)
+        mean_missing = float(r.missing_series.mean()) if getattr(r, "missing_series", None) is not None and not r.missing_series.empty else 0.0
+        median_var = float(r.variance_series.median()) if getattr(r, "variance_series", None) is not None and not r.variance_series.dropna().empty else 0.0
+        median_abs_r = 0.0
+        try:
+            vals = [abs(float(cl.get("max_r", 0.0))) for cl in r.corr_clusters]
+            median_abs_r = float(np.median(vals)) if vals else 0.0
+        except Exception:
+            pass
+
+        cascade = [
+            ("Input descriptors", n_input, "#2563EB"),
+            (f"Missing filter<br><span class='muted'>(≤ {self.max_missing_fraction:.2f})</span>", -len(r.removed_missing), "#EF4444"),
+            (f"Low variance<br><span class='muted'>(≥ {self.min_variance:.5g})</span>", -len(r.removed_low_variance), "#F97316"),
+            ("Pre-corr cap", -len(removed_cap), "#0EA5E9"),
+            (f"Correlation filter<br><span class='muted'>(|r| ≤ {self.max_correlation:.2f})</span>", -len(r.removed_correlated), "#EF4444"),
+            ("Final cap", -len(removed_final), "#DB2777"),
+            ("Final descriptors", n_output, "#16A34A"),
         ]
-        if r.removed_empty:
-            lines.append("  " + ", ".join(r.removed_empty[:10])
-                         + (f"  … +{len(r.removed_empty)-10} more" if len(r.removed_empty) > 10 else ""))
-        lines += [
-            "",
-            "Step 2 — Missing value filter",
-            "──────────────────────────────────────",
-            f"  Removed : {len(r.removed_missing)}",
-            f"  Remaining: {r.n_after_missing}",
+        max_abs = max([abs(v) for _, v, _ in cascade] + [1])
+        cascade_rows = ""
+        running = n_input
+        for label, val, color in cascade:
+            if label == "Input descriptors":
+                remaining = n_input
+                shown = n_input
+            elif label == "Final descriptors":
+                remaining = n_output
+                shown = n_output
+            else:
+                running += val
+                remaining = max(running, 0)
+                shown = val
+            width = max(6, int(100 * abs(shown) / max_abs))
+            sign = "+" if shown > 0 and label not in {"Input descriptors", "Final descriptors"} else ""
+            cascade_rows += (
+                f"<tr><td>{label}</td><td class='num'>{sign}{shown}</td>"
+                f"<td><div class='bar-bg'><div class='bar' style='width:{width}%; background:{color};'></div></div></td>"
+                f"<td class='num'>{remaining}</td></tr>"
+            )
+
+        top_clusters = sorted(r.corr_clusters, key=lambda x: x["size"], reverse=True)[:10]
+        cluster_rows = "".join(
+            f"<tr><td>{i+1}</td><td>{int(cl.get('size', 0))}</td><td>{esc(cl.get('kept',''))}</td><td>{float(cl.get('max_r',0.0)):.3f}</td></tr>"
+            for i, cl in enumerate(top_clusters)
+        ) or "<tr><td colspan='4'>No highly correlated clusters were detected.</td></tr>"
+
+        qs = getattr(r, "quality_summary", None) or {}
+        top_fam = qs.get("top_removed_families") or []
+        fam_rows = "".join(
+            f"<tr><td>{esc(name)}</td><td>{count}</td></tr>" for name, count in top_fam[:8]
+        ) or "<tr><td colspan='2'>No family-level removal summary available.</td></tr>"
+
+        qflags = [
+            ("High missing (> threshold)", len(r.removed_missing), "#EF4444"),
+            ("Low variance", len(r.removed_low_variance), "#F97316"),
+            ("Highly correlated", len(r.removed_correlated), "#8B5CF6"),
+            ("Pre-correlation cap", len(removed_cap), "#0EA5E9"),
+            ("Final cap", len(removed_final), "#DB2777"),
+            ("Constant / empty", len(r.removed_empty), "#64748B"),
         ]
-        if r.removed_missing:
-            lines.append("  " + ", ".join(r.removed_missing[:10])
-                         + (f"  … +{len(r.removed_missing)-10} more" if len(r.removed_missing) > 10 else ""))
-        lines += [
-            "",
-            "Step 3 — Low-variance filter",
-            "──────────────────────────────────────",
-            f"  Removed : {len(r.removed_low_variance)}",
-            f"  Remaining: {r.n_after_variance}",
+        qflag_rows = "".join(
+            f"<tr><td><span class='dot' style='background:{color};'></span>{esc(name)}</td><td class='pill'>{count}</td></tr>"
+            for name, count, color in qflags
+        )
+
+        next_steps = [
+            f"{n_output} descriptors remain after pre-selection.",
+            "Use <b>Modeling Data</b> as input for <b>QSAR/QSPR Model Hub</b>.",
+            "Check multicollinearity/VIF again on the final descriptor set if using linear models.",
+            "Validate with cross-validation and preferably an external test set.",
+            "Keep the Filter Report table for the final QSAR report.",
         ]
-        if r.removed_low_variance:
-            lines.append("  " + ", ".join(r.removed_low_variance[:10])
-                         + (f"  … +{len(r.removed_low_variance)-10} more" if len(r.removed_low_variance) > 10 else ""))
-        removed_cap = getattr(r, "removed_pre_correlation_cap", [])
-        lines += [
-            "",
-            "Step 4a — Pre-correlation feature cap",
-            "──────────────────────────────────────",
-            f"  Removed : {len(removed_cap)}",
-            f"  Remaining: {getattr(r, 'n_after_pre_correlation_cap', r.n_after_variance)}",
-        ]
-        if removed_cap:
-            lines.append("  " + ", ".join(removed_cap[:10])
-                         + (f"  … +{len(removed_cap)-10} more" if len(removed_cap) > 10 else ""))
-        lines += [
-            "",
-            "Step 4b — High-correlation filter",
-            "──────────────────────────────────────",
-            f"  Removed : {len(r.removed_correlated)}",
-            f"  Remaining: {getattr(r, 'n_after_correlation', r.n_output)}",
-            f"  Clusters: {len(r.corr_clusters)}",
-        ]
-        if r.corr_clusters:
-            top = sorted(r.corr_clusters, key=lambda x: x["size"], reverse=True)[:5]
-            for cl in top:
-                lines.append(f"  kept={cl['kept']}  removed={len(cl['removed'])}  max|r|={cl['max_r']:.3f}")
-        removed_final = getattr(r, "removed_final_cap", [])
-        lines += [
-            "",
-            "Step 5 — Final modeling feature cap",
-            "──────────────────────────────────────",
-            f"  Removed : {len(removed_final)}",
-            f"  Final output features: {r.n_output}",
-        ]
-        if removed_final:
-            lines.append("  " + ", ".join(removed_final[:10])
-                         + (f"  … +{len(removed_final)-10} more" if len(removed_final) > 10 else ""))
-        if getattr(r, "quality_summary", None):
-            qs = r.quality_summary or {}
-            lines += ["", "Descriptor quality diagnostics", "──────────────────────────────────────"]
-            lines.append(f"  Mean quality all : {qs.get('mean_quality_all', '—')}")
-            lines.append(f"  Mean quality kept: {qs.get('mean_quality_kept', '—')}")
-            top_fam = qs.get("top_removed_families") or []
-            if top_fam:
-                lines.append("  Top removed families:")
-                for name, count in top_fam[:8]:
-                    lines.append(f"    - {name}: {count}")
-        if getattr(r, "notes", None):
-            lines += ["", "Notes", "──────────────────────────────────────"]
-            lines.extend(f"  {note}" for note in r.notes)
-        self._txt_summary.setPlainText("\n".join(lines))
+        next_html = "".join(f"<li>{x}</li>" for x in next_steps)
+
+        notes = "".join(f"<li>{esc(n)}</li>" for n in (getattr(r, "notes", None) or [])) or "<li>No additional notes.</li>"
+
+        html = f"""
+        <html><head><style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; color:#0F172A; margin:0; padding:18px; background:#FFFFFF; }}
+        h1 {{ font-size:26px; margin:0 0 4px 0; font-weight:800; color:#0B1B3A; }}
+        h2 {{ font-size:16px; margin:0 0 10px 0; color:#0B1B3A; }}
+        .muted, .subtitle {{ color:#64748B; }}
+        .subtitle {{ margin-bottom:14px; font-size:13px; }}
+        table {{ border-collapse:collapse; width:100%; }}
+        td, th {{ border:1px solid #E2E8F0; padding:7px 9px; font-size:12px; vertical-align:middle; }}
+        th {{ background:#F8FAFC; color:#334155; text-align:left; }}
+        .kpis td {{ width:16.6%; }}
+        .kpi {{ background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:12px; }}
+        .kpi-value {{ font-size:27px; font-weight:800; line-height:1.0; }}
+        .kpi-title {{ font-weight:700; margin-top:6px; }}
+        .kpi-sub {{ color:#64748B; font-size:11px; margin-top:3px; }}
+        .grid {{ width:100%; border-spacing:10px; border-collapse:separate; }}
+        .panel {{ border:1px solid #E2E8F0; border-radius:12px; background:#FFFFFF; padding:12px; }}
+        .panel-blue {{ background:#F8FBFF; border-color:#BFDBFE; }}
+        .num {{ text-align:right; font-weight:700; }}
+        .bar-bg {{ height:12px; background:#F1F5F9; border-radius:8px; overflow:hidden; }}
+        .bar {{ height:12px; border-radius:8px; }}
+        .dot {{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; }}
+        .pill {{ text-align:center; font-weight:700; border-radius:999px; color:#0F172A; background:#F8FAFC; }}
+        .oklist li {{ margin:7px 0; font-size:12.5px; }}
+        .oklist li::marker {{ color:#16A34A; }}
+        .footer {{ color:#475569; font-size:12px; line-height:1.45; }}
+        </style></head><body>
+        <h1>Descriptor Pre-selection Report</h1>
+        <div class="subtitle">Comprehensive quality assessment and filtering of molecular descriptors for QSAR/QSPR modeling.</div>
+
+        <table class="kpis"><tr>
+          {card('Input descriptors', str(n_input), '100.0%', '#2563EB')}
+          {card('Kept descriptors', str(n_output), pct(n_output, n_input), '#16A34A')}
+          {card('Removed descriptors', str(removed_total), pct(removed_total, n_input), '#F97316')}
+          {card('Correlation clusters', str(len(r.corr_clusters)), f'{len(r.removed_correlated)} removed', '#8B5CF6')}
+          {card('Redundancy pairs', str(len(r.removed_correlated)), f'|r| ≥ {self.max_correlation:.2f}', '#0EA5E9')}
+          {card('Mean missing rate', f'{mean_missing*100:.1f}%', 'overall', '#D97706')}
+        </tr></table>
+
+        <table class="grid"><tr>
+          <td class="panel" style="width:47%;"><h2>Filtering cascade</h2><table><tr><th>Step</th><th>Δ</th><th>Scale</th><th>Remaining</th></tr>{cascade_rows}</table></td>
+          <td class="panel" style="width:30%;"><h2>Quality flags</h2><table>{qflag_rows}</table></td>
+          <td class="panel panel-blue" style="width:23%;"><h2>Data summary</h2><table>
+            <tr><td>Rows</td><td class="num">{len(self._data) if self._data is not None else '—'}</td></tr>
+            <tr><td>Numeric descriptors</td><td class="num">{n_input}</td></tr>
+            <tr><td>Median variance</td><td class="num">{median_var:.3g}</td></tr>
+            <tr><td>Median cluster |r|</td><td class="num">{median_abs_r:.3f}</td></tr>
+            <tr><td>Target column</td><td class="num">{esc(self.target_column or '—')}</td></tr>
+          </table></td>
+        </tr></table>
+
+        <table class="grid"><tr>
+          <td class="panel" style="width:34%;"><h2>Top 10 correlation clusters</h2><table><tr><th>ID</th><th>Size</th><th>Representative kept</th><th>Max |r|</th></tr>{cluster_rows}</table></td>
+          <td class="panel" style="width:28%;"><h2>Descriptor families most affected</h2><table><tr><th>Family</th><th>Removed</th></tr>{fam_rows}</table></td>
+          <td class="panel" style="width:38%;"><h2>Next steps for QSAR</h2><ul class="oklist">{next_html}</ul></td>
+        </tr></table>
+
+        <table class="grid"><tr>
+          <td class="panel panel-blue" style="width:55%;"><h2>Interpretation</h2><div class="footer">Filtering removed <b>{removed_pct}</b> of descriptors. The remaining table is less redundant and should reduce overfitting risk, improve model interpretability, and speed up downstream model selection.</div></td>
+          <td class="panel panel-blue" style="width:45%;"><h2>Report quality</h2><div class="footer">All filter stages completed. Notes:<ul>{notes}</ul></div></td>
+        </tr></table>
+        </body></html>
+        """
+        self._txt_summary.setHtml(html)
 
     def _populate_variance_plot(self, r: DescriptorFilterResult) -> None:
         self._pw_var.clear()

@@ -9,7 +9,7 @@ from Orange.data import Table, Domain, StringVariable, ContinuousVariable
 
 # Qt imports via AnyQt for Orange compatibility
 from AnyQt.QtWidgets import QPlainTextEdit, QSizePolicy, QApplication
-from AnyQt.QtCore import pyqtSlot, pyqtSignal
+from AnyQt.QtCore import Qt, pyqtSlot, pyqtSignal
 from Orange.widgets.utils.concurrent import ThreadExecutor, methodinvoke
 
 from chem_inf_widgets.chemcore.services.chembl_bioactivity_dataframe_service import (
@@ -68,9 +68,9 @@ class ChEMBLBioactivityWidget(OWWidget):
 
     def _build_ui(self):
         """Construct the user interface in the control area."""
-        control_box = gui.widgetBox(self.controlArea, orientation="vertical", spacing=6)
+        control_box = gui.widgetBox(self.controlArea, orientation=Qt.Vertical, spacing=6)
 
-        input_box = gui.widgetBox(control_box, "Retrieve Bioactivity Data", orientation="vertical")
+        input_box = gui.widgetBox(control_box, "Retrieve Bioactivity Data", orientation=Qt.Vertical)
         gui.label(input_box, self, "Enter ChEMBL Target ID (e.g., CHEMBL2095150):")
         gui.lineEdit(input_box, self, "target_id", placeholderText="CHEMBLxxxxxx")
         self.fetch_button = gui.button(input_box, self, "Fetch Data", callback=self.fetch_bioactivity_data)
@@ -78,7 +78,7 @@ class ChEMBLBioactivityWidget(OWWidget):
         self.status_label = gui.label(input_box, self, "Status: Awaiting input.")
         control_box.layout().addStretch(1)
 
-        log_box = gui.widgetBox(control_box, "Status Log", orientation="vertical")
+        log_box = gui.widgetBox(control_box, "Status Log", orientation=Qt.Vertical)
         self.log_text = QPlainTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

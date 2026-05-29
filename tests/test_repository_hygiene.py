@@ -27,6 +27,16 @@ class RepositoryHygieneTests(unittest.TestCase):
             f"Unexpected duplicate Python source file remains in tree: {stray.relative_to(PROJECT_ROOT)}",
         )
 
+    def test_no_backup_files_remain_in_source_tree(self):
+        forbidden = []
+        for backup_path in SRC_ROOT.rglob("*.bak"):
+            forbidden.append(backup_path.relative_to(PROJECT_ROOT).as_posix())
+
+        self.assertFalse(
+            forbidden,
+            "Source tree contains backup files that should not ship: " + ", ".join(sorted(forbidden)),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

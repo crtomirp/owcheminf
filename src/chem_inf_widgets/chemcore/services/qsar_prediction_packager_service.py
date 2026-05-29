@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import pickle
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -67,13 +67,17 @@ class QSARPredictionModelBundle:
     source_widget: Optional[str] = None
     training_rows: Optional[int] = None
     selected_feature_names: tuple[str, ...] = ()
+    training_summary: dict[str, Any] = field(default_factory=dict)
     bundle_version: str = "2026.05"
 
     def predict(self, X) -> np.ndarray:
         return np.asarray(self.model.predict(X), dtype=float)
 
     def __getattr__(self, name: str):
-        return getattr(self.model, name)
+        model = self.__dict__.get("model", None)
+        if model is None:
+            raise AttributeError(name)
+        return getattr(model, name)
 
     def __getitem__(self, item):
         return self.model[item]
@@ -98,6 +102,7 @@ def build_qsar_prediction_bundle(
     source_widget: Optional[str] = None,
     training_rows: Optional[int] = None,
     selected_feature_names: Optional[list[str]] = None,
+    training_summary: Optional[dict[str, Any]] = None,
 ) -> QSARPredictionModelBundle:
     base_model = _unwrap_prediction_model(model)
     features = tuple(str(x) for x in (feature_names or _expected_features_from_model(model) or []))
@@ -107,12 +112,14 @@ def build_qsar_prediction_bundle(
         current_source_widget = model.source_widget
         current_training_rows = model.training_rows
         current_selected = tuple(str(x) for x in model.selected_feature_names)
+        current_training_summary = dict(model.training_summary or {})
         current_bundle_version = str(model.bundle_version or "2026.05")
     else:
         current_model_name = None
         current_source_widget = None
         current_training_rows = None
         current_selected = tuple()
+        current_training_summary = {}
         current_bundle_version = "2026.05"
     return QSARPredictionModelBundle(
         model=base_model,
@@ -135,6 +142,7 @@ def build_qsar_prediction_bundle(
                 or []
             )
         ),
+        training_summary=_json_safe(training_summary if training_summary is not None else current_training_summary),
         bundle_version=current_bundle_version,
     )
 
@@ -227,7 +235,65 @@ def model_bundle_metadata(model: Any) -> dict[str, Any]:
         "bundle_feature_count": int(len(feature_names)),
         "bundle_selected_feature_count": int(len(selected_feature_names)),
         "bundle_selected_feature_names": selected_feature_names,
+        "bundle_target_label": str(getattr(bundle, "target_label", "") or ""),
+        "bundle_recipe_kind": str(getattr(bundle, "recipe_kind", "") or ""),
+        "bundle_fingerprint_type": str(getattr(bundle, "fingerprint_type", "") or ""),
+        "bundle_fingerprint_radius": int(getattr(bundle, "fingerprint_radius", 0) or 0),
+        "bundle_fingerprint_n_bits": int(getattr(bundle, "fingerprint_n_bits", 0) or 0),
+        "bundle_training_summary_keys": sorted(list((getattr(bundle, "training_summary", {}) or {}).keys())),
     }
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (np.floating,)):
+        val = float(value)
+        return val if np.isfinite(val) else None
+    if isinstance(value, (np.bool_,)):
+        return bool(value)
+    if isinstance(value, Path):
+        return str(value)
+    return value
+
+
+def selected_feature_names_from_model(
+    model: Any,
+    *,
+    fallback_features: Optional[list[str]] = None,
+) -> list[str]:
+    expected = [str(x) for x in (fallback_features or _expected_features_from_model(model) or [])]
+    if isinstance(model, QSARPredictionModelBundle) and model.selected_feature_names:
+        return [str(x) for x in model.selected_feature_names]
+    direct = getattr(model, "selected_names", None)
+    if direct:
+        return [str(x) for x in list(direct)]
+
+    if hasattr(model, "pipelines"):
+        union_names: list[str] = []
+        seen: set[str] = set()
+        for pipeline in list(getattr(model, "pipelines", []) or []):
+            for name in selected_feature_names_from_model(pipeline, fallback_features=expected):
+                if name not in seen:
+                    seen.add(name)
+                    union_names.append(name)
+        return union_names or expected
+
+    named_steps = getattr(model, "named_steps", None)
+    if named_steps and expected:
+        selector = named_steps.get("selector") or named_steps.get("feature_selection")
+        if selector is not None and hasattr(selector, "get_support"):
+            try:
+                mask = np.asarray(selector.get_support(), dtype=bool).ravel()
+            except Exception:
+                mask = np.array([], dtype=bool)
+            if mask.size == len(expected):
+                return [name for name, keep in zip(expected, mask) if bool(keep)]
+    return expected
 
 
 def _fingerprint_spec_from_name(name: str) -> Optional[tuple[str, int]]:
@@ -659,4 +725,48 @@ def write_prediction_package(
     )
     if model is not None:
         paths["model_pickle"] = save_model_pickle(model, prefix.with_suffix(".model.pkl"))
+    return paths
+
+
+def write_model_bundle_package(
+    model: Any,
+    out_prefix: str | Path,
+) -> dict[str, str]:
+    prefix = Path(out_prefix)
+    if prefix.suffix.lower() == ".pkl":
+        prefix = prefix.with_suffix("")
+    if prefix.suffix.lower() == ".model":
+        prefix = prefix.with_suffix("")
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+    bundle = model if isinstance(model, QSARPredictionModelBundle) else build_qsar_prediction_bundle(model)
+    feature_names = [str(x) for x in bundle.feature_names]
+    selected_features = selected_feature_names_from_model(bundle, fallback_features=feature_names)
+    manifest = {
+        "artifact_kind": "qsar_prediction_model_bundle",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "bundle_version": str(bundle.bundle_version or "2026.05"),
+        "model_name": str(bundle.model_name or type(bundle.model).__name__),
+        "source_widget": str(bundle.source_widget or ""),
+        "target_label": str(bundle.target_label or ""),
+        "recipe_kind": str(bundle.recipe_kind or ""),
+        "fingerprint_type": str(bundle.fingerprint_type or ""),
+        "fingerprint_radius": int(bundle.fingerprint_radius or 2),
+        "fingerprint_n_bits": int(bundle.fingerprint_n_bits or 0),
+        "training_rows": int(bundle.training_rows or 0),
+        "feature_count": int(len(feature_names)),
+        "selected_feature_count": int(len(selected_features)),
+        "feature_names": feature_names,
+        "selected_feature_names": selected_features,
+        "training_summary": _json_safe(bundle.training_summary),
+        "prediction_packager_metadata": _json_safe(model_bundle_metadata(bundle)),
+    }
+    paths = {
+        "model_pickle": save_model_pickle(bundle, prefix.with_suffix(".model.pkl")),
+        "manifest_json": str(prefix.with_suffix(".manifest.json")),
+        "feature_names_txt": str(prefix.with_suffix(".features.txt")),
+        "selected_features_txt": str(prefix.with_suffix(".selected_features.txt")),
+    }
+    Path(paths["manifest_json"]).write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+    Path(paths["feature_names_txt"]).write_text("\n".join(feature_names) + "\n", encoding="utf-8")
+    Path(paths["selected_features_txt"]).write_text("\n".join(selected_features) + "\n", encoding="utf-8")
     return paths

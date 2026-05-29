@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import ast
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import pandas as pd
 
 import pyqtgraph as pg
-from AnyQt.QtCore import Qt, pyqtSlot as Slot
+from AnyQt.QtCore import QTimer, Qt, pyqtSlot as Slot
 from AnyQt.QtGui import QColor, QFont
+from AnyQt.QtPrintSupport import QPrinter
 from AnyQt.QtWidgets import (
+    QFileDialog,
     QGroupBox,
     QHBoxLayout,
     QLabel,
@@ -50,9 +54,10 @@ def _table_to_df(data: Optional[Table]) -> Optional[pd.DataFrame]:
         return None
     cols: dict = {}
     n = len(data)
-    for i, v in enumerate(data.domain.attributes):
+    if data.domain.attributes:
         X = np.array(data.X, dtype=float)
-        cols[v.name] = X[:, i] if X.ndim == 2 else X
+        for i, v in enumerate(data.domain.attributes):
+            cols[v.name] = X[:, i] if X.ndim == 2 else X
     if data.domain.class_vars:
         Y = np.array(data.Y, dtype=float).reshape(n, -1)
         for i, v in enumerate(data.domain.class_vars):
@@ -85,6 +90,153 @@ def _df_to_table(df: Optional[pd.DataFrame]) -> Table:
     return Table.from_numpy(Domain(attrs, metas=metas), X=X, metas=M)
 
 
+def _norm_key(value: object) -> str:
+    return str(value).strip().lower().replace(" ", "_").replace("-", "_")
+
+
+def _detect_column(df: Optional[pd.DataFrame], candidates: list[str]) -> Optional[str]:
+    if df is None or df.empty:
+        return None
+    by_key = {_norm_key(col): col for col in df.columns}
+    for cand in candidates:
+        key = _norm_key(cand)
+        if key in by_key:
+            return by_key[key]
+    candidate_keys = [_norm_key(cand) for cand in candidates]
+    for key, col in by_key.items():
+        if any(cand in key for cand in candidate_keys):
+            return col
+    return None
+
+
+def _prediction_columns(pred_df: Optional[pd.DataFrame]) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str]]:
+    obs_col = _detect_column(pred_df, ["observed", "y_true", "actual", "experimental", "measured", "reference", "pActivity"])
+    pred_col = _detect_column(pred_df, ["predicted", "y_pred", "prediction", "predicted_pActivity", "estimate"])
+    split_col = _detect_column(pred_df, ["split", "dataset", "partition", "group", "subset"])
+    residual_col = _detect_column(pred_df, ["residual", "error", "prediction_error", "obs_minus_pred"])
+    id_col = _detect_column(pred_df, ["compound_id", "id", "name", "molecule_id"])
+    return obs_col, pred_col, split_col, residual_col, id_col
+
+
+def _normalize_split_value(value: object) -> str:
+    key = _norm_key(value)
+    if key in {"cv", "cross_validation", "cross-validation", "validation"}:
+        return "cross_validation"
+    if key in {"external", "holdout"}:
+        return "test"
+    if key.startswith("train"):
+        return "train"
+    if key.startswith("test"):
+        return "test"
+    return key
+
+
+def _split_groups(pred_df: pd.DataFrame, split_col: Optional[str]) -> list[tuple[str, pd.DataFrame]]:
+    if split_col is None or split_col not in pred_df.columns:
+        return [("all", pred_df)]
+    frame = pred_df.copy()
+    frame["_split_norm"] = frame[split_col].map(_normalize_split_value)
+    groups: list[tuple[str, pd.DataFrame]] = []
+    for split_name in ("train", "test", "cross_validation"):
+        sub = frame[frame["_split_norm"] == split_name].drop(columns=["_split_norm"])
+        if not sub.empty:
+            groups.append((split_name, sub))
+    if groups:
+        return groups
+    return [("all", frame.drop(columns=["_split_norm"]))]
+
+
+def _metric_lookup(metrics: Optional[pd.DataFrame]) -> dict[tuple[str, str], float]:
+    out: dict[tuple[str, str], float] = {}
+    if metrics is None or metrics.empty:
+        return out
+    cols = {_norm_key(c): c for c in metrics.columns}
+    metric_col = cols.get("metric") or cols.get("name")
+    value_col = cols.get("value") or cols.get("score")
+    split_col = cols.get("group") or cols.get("split") or cols.get("dataset") or cols.get("partition")
+    if metric_col and value_col:
+        for _, row in metrics.iterrows():
+            try:
+                value = float(row[value_col])
+            except Exception:
+                continue
+            split = _normalize_split_value(row[split_col]) if split_col else ""
+            metric = _norm_key(row[metric_col])
+            out[(split, metric)] = value
+            out.setdefault(("", metric), value)
+        return out
+    for col in metrics.columns:
+        try:
+            value = float(metrics[col].iloc[0])
+        except Exception:
+            continue
+        key = _norm_key(col)
+        split = ""
+        metric = key
+        for split_name in ("train", "test", "cv", "cross_validation", "external", "validation"):
+            if key.startswith(split_name + "_"):
+                split = _normalize_split_value(split_name)
+                metric = key[len(split_name) + 1:]
+                break
+            if key.endswith("_" + split_name):
+                split = _normalize_split_value(split_name)
+                metric = key[: -(len(split_name) + 1)]
+                break
+        out[(split, metric)] = value
+        out.setdefault(("", metric), value)
+    return out
+
+
+def _first_metric(lookup: dict[tuple[str, str], float], names: list[str], splits: list[str]) -> Optional[float]:
+    aliases: list[str] = []
+    for name in names:
+        key = _norm_key(name)
+        aliases.extend([key, key.replace("2", "_2"), key.replace("_", "")])
+    for split in splits:
+        split_key = _normalize_split_value(split)
+        for alias in aliases:
+            if (split_key, alias) in lookup:
+                return lookup[(split_key, alias)]
+    for alias in aliases:
+        if ("", alias) in lookup:
+            return lookup[("", alias)]
+    return None
+
+
+def _importance_frame(expl_df: Optional[pd.DataFrame]) -> pd.DataFrame:
+    if expl_df is None or expl_df.empty:
+        return pd.DataFrame(columns=["feature", "importance"])
+    feat_col = _detect_column(expl_df, ["feature", "feature_name", "descriptor", "name"])
+    imp_col = _detect_column(expl_df, ["importance", "score", "mean_abs_shap", "mean_importance", "coefficient", "normalized_importance", "value"])
+    if feat_col and imp_col:
+        df = expl_df[[feat_col, imp_col]].copy()
+        df.columns = ["feature", "importance"]
+        df["importance"] = pd.to_numeric(df["importance"], errors="coerce")
+        return df.dropna(subset=["importance"])
+
+    pairs_col = _detect_column(expl_df, ["top_feature_pairs", "top_features"])
+    if not pairs_col:
+        return pd.DataFrame(columns=["feature", "importance"])
+    for raw_value in expl_df[pairs_col].dropna():
+        try:
+            parsed = ast.literal_eval(str(raw_value))
+        except Exception:
+            continue
+        if isinstance(parsed, list) and parsed:
+            rows = []
+            for item in parsed:
+                if isinstance(item, dict) and "feature" in item:
+                    value = item.get("importance", item.get("normalized_importance"))
+                    rows.append({"feature": item["feature"], "importance": value})
+                elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                    rows.append({"feature": item[0], "importance": item[1]})
+            if rows:
+                df = pd.DataFrame(rows)
+                df["importance"] = pd.to_numeric(df["importance"], errors="coerce")
+                return df.dropna(subset=["importance"])
+    return pd.DataFrame(columns=["feature", "importance"])
+
+
 # ── pyqtgraph helpers ─────────────────────────────────────────────────────────
 
 def _styled_plot(title: str = "") -> pg.PlotWidget:
@@ -105,6 +257,24 @@ def _scatter(x, y, rgba, labels=None, size=9) -> pg.ScatterPlotItem:
     if labels is not None:
         kw["data"] = labels
     return pg.ScatterPlotItem(**kw)
+
+
+def _set_numeric_plot_range(plot: pg.PlotWidget, x_values, y_values, *, x_pad_ratio: float = 0.06, y_pad_ratio: float = 0.08) -> None:
+    x_arr = np.asarray(x_values, dtype=float).ravel()
+    y_arr = np.asarray(y_values, dtype=float).ravel()
+    x_arr = x_arr[np.isfinite(x_arr)]
+    y_arr = y_arr[np.isfinite(y_arr)]
+    if x_arr.size == 0 or y_arr.size == 0:
+        return
+
+    x_min, x_max = float(np.min(x_arr)), float(np.max(x_arr))
+    y_min, y_max = float(np.min(y_arr)), float(np.max(y_arr))
+    x_span = x_max - x_min
+    y_span = y_max - y_min
+    x_pad = max(x_span * x_pad_ratio, 0.15 if x_span == 0 else 0.0)
+    y_pad = max(y_span * y_pad_ratio, 0.15 if y_span == 0 else 0.0)
+    plot.setXRange(x_min - x_pad, x_max + x_pad, padding=0.0)
+    plot.setYRange(y_min - y_pad, y_max + y_pad, padding=0.0)
 
 
 # ── hover info label ──────────────────────────────────────────────────────────
@@ -143,12 +313,19 @@ class OWQSARReportGenerator(OWWidget):
         metrics            = Input("Metrics",            Table)
         predictions        = Input("Predictions",        Table)
         validation_summary = Input("Validation Summary", Table)
+        feature_importance = Input("Feature Importance", Table)
+        # Compatibility input for QSAR/QSPR Model Hub.
+        # Model Hub emits "Model Summary", while the report service historically
+        # expected a generic "Validation Summary" table.  Both now feed the same
+        # report section; Validation Summary takes precedence if both are connected.
+        model_summary      = Input("Model Summary",      Table)
         ad_summary         = Input("AD Summary",         Table)
         explanation_summary= Input("Explanation Summary",Table)
 
     class Outputs:
         report_markdown  = Output("Report Markdown",  str,   auto_summary=False)
         report_html      = Output("Report HTML",      str,   auto_summary=False)
+        report_pdf_path  = Output("Report PDF Path",  str,   auto_summary=False)
         report_sections  = Output("Report Sections",  Table)
         report_summary   = Output("Report Summary",   Table)
 
@@ -162,8 +339,16 @@ class OWQSARReportGenerator(OWWidget):
         super().__init__()
         self._data: dict = {k: None for k in
             ("dataset", "metrics", "predictions",
-             "validation_summary", "ad_summary", "explanation_summary")}
+             "validation_summary", "feature_importance", "model_summary",
+             "ad_summary", "explanation_summary")}
         self._executor = ThreadExecutor(self)
+        self._last_report_html: str = ""
+        self._last_report_markdown: str = ""
+        self._latest_plot_frames: dict[str, Optional[pd.DataFrame]] = {
+            "predictions": None,
+            "metrics": None,
+            "importance": None,
+        }
 
         self._build_control_area()
         self._build_main_area()
@@ -212,6 +397,11 @@ class OWQSARReportGenerator(OWWidget):
         self._btn_run.clicked.connect(self.commit)
         vl.addWidget(self._btn_run)
 
+        self._btn_pdf = QPushButton("Export PDF")
+        self._btn_pdf.setEnabled(False)
+        self._btn_pdf.clicked.connect(self.export_pdf)
+        vl.addWidget(self._btn_pdf)
+
         self._progress = QProgressBar()
         self._progress.setRange(0, 0)
         self._progress.setVisible(False)
@@ -224,6 +414,7 @@ class OWQSARReportGenerator(OWWidget):
 
     def _build_main_area(self) -> None:
         self._tabs = QTabWidget()
+        self._tabs.currentChanged.connect(self._on_tab_changed)
 
         # Tab 0 – HTML report
         self._report_browser = QTextBrowser()
@@ -254,7 +445,7 @@ class OWQSARReportGenerator(OWWidget):
         self._op_hover = _HoverLabel()
 
         legend = self._make_legend([
-            ("Train", _C_TRAIN), ("Test", _C_TEST)
+            ("Train", _C_TRAIN), ("Test", _C_TEST), ("CV", _C_CV)
         ])
         vl.addWidget(legend)
         vl.addWidget(self._op_plot, 1)
@@ -270,7 +461,7 @@ class OWQSARReportGenerator(OWWidget):
         self._res_plot.setLabel("bottom", "Predicted")
         self._res_hover = _HoverLabel()
 
-        legend = self._make_legend([("Train", _C_TRAIN), ("Test", _C_TEST)])
+        legend = self._make_legend([("Train", _C_TRAIN), ("Test", _C_TEST), ("CV", _C_CV)])
         vl.addWidget(legend)
         vl.addWidget(self._res_plot, 1)
         vl.addWidget(self._res_hover)
@@ -335,6 +526,7 @@ class OWQSARReportGenerator(OWWidget):
 
     def _set_busy(self, busy: bool) -> None:
         self._btn_run.setEnabled(not busy)
+        self._btn_pdf.setEnabled((not busy) and bool(self._last_report_html.strip()))
         self._progress.setVisible(busy)
 
     # ── inputs ────────────────────────────────────────────────────────────────
@@ -351,6 +543,12 @@ class OWQSARReportGenerator(OWWidget):
     @Inputs.validation_summary
     def set_validation_summary(self, d): self._data["validation_summary"] = d; self._maybe_commit()
 
+    @Inputs.feature_importance
+    def set_feature_importance(self, d): self._data["feature_importance"] = d; self._maybe_commit()
+
+    @Inputs.model_summary
+    def set_model_summary(self, d): self._data["model_summary"] = d; self._maybe_commit()
+
     @Inputs.ad_summary
     def set_ad_summary(self, d): self._data["ad_summary"] = d; self._maybe_commit()
 
@@ -365,6 +563,14 @@ class OWQSARReportGenerator(OWWidget):
 
     def commit(self) -> None:
         snapshot = {k: _table_to_df(v) for k, v in self._data.items()}
+        # The report generator supports both the generic Validation Summary
+        # and the QSAR/QSPR Model Hub specific Model Summary.  This avoids a
+        # dead-end workflow where Model Hub outputs cannot be connected to a
+        # matching report input.
+        if snapshot.get("validation_summary") is None:
+            snapshot["validation_summary"] = snapshot.get("model_summary")
+        if snapshot.get("explanation_summary") is None:
+            snapshot["explanation_summary"] = snapshot.get("feature_importance")
         cfg = QSARReportConfig(
             title=self.title_text.strip() or "QSAR Studio Report",
             project_name=self.project_name.strip() or "QSAR project",
@@ -400,33 +606,106 @@ class OWQSARReportGenerator(OWWidget):
     def _finish(self, payload: object) -> None:
         result, snapshot = payload
         self._set_busy(False)
+        self._last_report_markdown = result.markdown or ""
+        self._last_report_html = result.html or f"<pre>{result.markdown}</pre>"
 
-        self.Outputs.report_markdown.send(result.markdown)
-        self.Outputs.report_html.send(result.html)
+        self.Outputs.report_markdown.send(self._last_report_markdown)
+        self.Outputs.report_html.send(self._last_report_html)
         self.Outputs.report_sections.send(_df_to_table(result.sections))
         self.Outputs.report_summary.send(_df_to_table(pd.DataFrame([result.summary])))
+        self.Outputs.report_pdf_path.send(None)
 
         # Render HTML report
-        self._report_browser.setHtml(result.html or f"<pre>{result.markdown}</pre>")
+        self._report_browser.setHtml(self._last_report_html)
 
         # Update plots
         pred_df  = snapshot.get("predictions")
         met_df   = snapshot.get("metrics")
         expl_df  = snapshot.get("explanation_summary")
+        self._latest_plot_frames["predictions"] = pred_df
+        self._latest_plot_frames["metrics"] = met_df
+        self._latest_plot_frames["importance"] = expl_df
 
         self._update_obs_pred(pred_df)
         self._update_residuals(pred_df)
         self._update_metrics(met_df)
         self._update_importance(expl_df)
+        QTimer.singleShot(0, self._refresh_current_tab)
 
         n_sec = result.summary.get("sections_created", "?")
-        self._set_status(f"{n_sec} sections · report ready", ok=True)
+        missing = result.summary.get("sections_missing", 0)
+        status = f"{n_sec} sections · report ready"
+        if missing:
+            status += f" · {missing} missing"
+        self._set_status(status, ok=True)
 
     @Slot(str)
     def _fail(self, msg: str) -> None:
         self._set_busy(False)
         self._set_status("Error", ok=False)
+        self._btn_pdf.setEnabled(bool(self._last_report_html.strip()))
         self._report_browser.setPlainText(f"Report generation failed:\n\n{msg}")
+
+    def _on_tab_changed(self, index: int) -> None:
+        QTimer.singleShot(0, self._refresh_current_tab)
+
+    def _refresh_current_tab(self) -> None:
+        idx = int(self._tabs.currentIndex())
+        pred_df = self._latest_plot_frames.get("predictions")
+        met_df = self._latest_plot_frames.get("metrics")
+        expl_df = self._latest_plot_frames.get("importance")
+        if idx == 1:
+            self._update_obs_pred(pred_df)
+        elif idx == 2:
+            self._update_residuals(pred_df)
+        elif idx == 3:
+            self._update_metrics(met_df)
+        elif idx == 4:
+            self._update_importance(expl_df)
+
+    def _default_pdf_name(self) -> str:
+        title = self.title_text.strip() or "qsar_report"
+        safe = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "_" for ch in title).strip("_")
+        return f"{safe or 'qsar_report'}.pdf"
+
+    def _save_report_pdf(self, filename: str) -> str:
+        html = self._last_report_html.strip()
+        if not html:
+            raise ValueError("No report available for PDF export.")
+        out_path = Path(filename)
+        if out_path.suffix.lower() != ".pdf":
+            out_path = out_path.with_suffix(".pdf")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setOutputFileName(str(out_path))
+        printer.setPageMargins(12, 12, 12, 12, QPrinter.Millimeter)
+        self._report_browser.document().print_(printer)
+        if not out_path.exists() or out_path.stat().st_size == 0:
+            raise IOError(f"PDF export failed for {out_path}")
+        return str(out_path)
+
+    def export_pdf(self) -> None:
+        if not self._last_report_html.strip():
+            self._set_status("No report available for PDF export.", ok=False)
+            self.Outputs.report_pdf_path.send(None)
+            return
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export PDF",
+            self._default_pdf_name(),
+            "PDF Files (*.pdf)",
+        )
+        if not filename:
+            return
+        try:
+            saved_path = self._save_report_pdf(filename)
+            self.Outputs.report_pdf_path.send(saved_path)
+            self._set_status(f"PDF exported · {Path(saved_path).name}", ok=True)
+        except Exception as exc:
+            self.Outputs.report_pdf_path.send(None)
+            self._set_status(f"Error exporting PDF: {exc}", ok=False)
 
     # ── plot updaters ─────────────────────────────────────────────────────────
 
@@ -434,55 +713,107 @@ class OWQSARReportGenerator(OWWidget):
         self._op_plot.clear()
         if pred_df is None or pred_df.empty:
             return
-        if not {"observed", "predicted"}.issubset(pred_df.columns):
+        obs_col, pred_col, split_col, _residual_col, id_col = _prediction_columns(pred_df)
+        if obs_col is None or pred_col is None:
             return
 
-        for split, rgba in [("train", _C_TRAIN), ("test", _C_TEST)]:
-            sub = pred_df[pred_df.get("split", pd.Series(["test"] * len(pred_df))) == split] \
-                if "split" in pred_df.columns else pred_df
+        split_colors = {
+            "train": _C_TRAIN,
+            "test": _C_TEST,
+            "cross_validation": _C_CV,
+            "all": _C_TEST,
+        }
+        numeric = pred_df.copy()
+        numeric[obs_col] = pd.to_numeric(numeric[obs_col], errors="coerce")
+        numeric[pred_col] = pd.to_numeric(numeric[pred_col], errors="coerce")
+
+        for split, sub in _split_groups(numeric, split_col):
+            rgba = split_colors.get(split, _C_TEST)
+            sub = sub.dropna(subset=[obs_col, pred_col])
             if sub.empty:
                 continue
-            obs  = sub["observed"].values.astype(float)
-            pred = sub["predicted"].values.astype(float)
-            ids  = sub["compound_id"].values if "compound_id" in sub.columns else np.arange(len(sub)).astype(str)
+            obs = sub[obs_col].to_numpy(dtype=float)
+            pred = sub[pred_col].to_numpy(dtype=float)
+            ids = (
+                sub[id_col].astype(str).to_numpy()
+                if id_col and id_col in sub.columns
+                else np.arange(len(sub)).astype(str)
+            )
             sc = _scatter(obs, pred, rgba, labels=ids)
             sc.sigHovered.connect(
-                lambda pts, ev, hover_lbl=self._op_hover: self._on_hover_op(pts, ev, hover_lbl)
+                lambda _item, points, ev, hover_lbl=self._op_hover: self._on_hover_op(points, ev, hover_lbl)
             )
             self._op_plot.addItem(sc)
 
         # diagonal y=x line
-        all_vals = np.concatenate([pred_df["observed"].values, pred_df["predicted"].values])
+        valid = numeric[[obs_col, pred_col]].dropna()
+        if valid.empty:
+            return
+        all_vals = np.concatenate([valid[obs_col].to_numpy(dtype=float), valid[pred_col].to_numpy(dtype=float)])
         mn, mx = np.nanmin(all_vals), np.nanmax(all_vals)
         pad = (mx - mn) * 0.05 if mx > mn else 0.5
         diag = pg.PlotDataItem([mn - pad, mx + pad], [mn - pad, mx + pad],
                                 pen=pg.mkPen(_C_DIAG, width=1.5, style=Qt.DashLine))
         self._op_plot.addItem(diag)
+        self._op_plot.setXRange(mn - pad, mx + pad, padding=0.0)
+        self._op_plot.setYRange(mn - pad, mx + pad, padding=0.0)
 
     def _update_residuals(self, pred_df: Optional[pd.DataFrame]) -> None:
         self._res_plot.clear()
         if pred_df is None or pred_df.empty:
             return
-        if not {"observed", "predicted"}.issubset(pred_df.columns):
+        obs_col, pred_col, split_col, residual_col, id_col = _prediction_columns(pred_df)
+        if obs_col is None or pred_col is None:
             return
 
-        for split, rgba in [("train", _C_TRAIN), ("test", _C_TEST)]:
-            sub = pred_df[pred_df["split"] == split] if "split" in pred_df.columns else pred_df
+        split_colors = {
+            "train": _C_TRAIN,
+            "test": _C_TEST,
+            "cross_validation": _C_CV,
+            "all": _C_TEST,
+        }
+        numeric = pred_df.copy()
+        numeric[pred_col] = pd.to_numeric(numeric[pred_col], errors="coerce")
+        if residual_col and residual_col in numeric.columns:
+            numeric[residual_col] = pd.to_numeric(numeric[residual_col], errors="coerce")
+        else:
+            numeric[obs_col] = pd.to_numeric(numeric[obs_col], errors="coerce")
+            residual_col = "__residual__"
+            numeric[residual_col] = numeric[obs_col] - numeric[pred_col]
+
+        for split, sub in _split_groups(numeric, split_col):
+            rgba = split_colors.get(split, _C_TEST)
+            sub = sub.dropna(subset=[pred_col, residual_col])
             if sub.empty:
                 continue
-            pred = sub["predicted"].values.astype(float)
-            res  = (sub["observed"].values - sub["predicted"].values).astype(float)
-            ids  = sub["compound_id"].values if "compound_id" in sub.columns else np.arange(len(sub)).astype(str)
+            pred = sub[pred_col].to_numpy(dtype=float)
+            res = sub[residual_col].to_numpy(dtype=float)
+            ids = (
+                sub[id_col].astype(str).to_numpy()
+                if id_col and id_col in sub.columns
+                else np.arange(len(sub)).astype(str)
+            )
             sc = _scatter(pred, res, rgba, labels=ids)
             sc.sigHovered.connect(
-                lambda pts, ev, hl=self._res_hover: self._on_hover_res(pts, ev, hl)
+                lambda _item, points, ev, hl=self._res_hover: self._on_hover_res(points, ev, hl)
             )
             self._res_plot.addItem(sc)
 
         # zero line
-        mn, mx = pred_df["predicted"].min(), pred_df["predicted"].max()
+        valid_pred = numeric[pred_col].dropna()
+        if valid_pred.empty:
+            return
+        residual_vals = numeric[residual_col].dropna()
+        if residual_vals.empty:
+            return
+        mn, mx = float(valid_pred.min()), float(valid_pred.max())
         self._res_plot.addItem(
             pg.InfiniteLine(pos=0, angle=0, pen=pg.mkPen(_C_DIAG, width=1, style=Qt.DashLine))
+        )
+        _set_numeric_plot_range(
+            self._res_plot,
+            valid_pred.to_numpy(dtype=float),
+            residual_vals.to_numpy(dtype=float),
         )
 
     def _update_metrics(self, met_df: Optional[pd.DataFrame]) -> None:
@@ -490,26 +821,31 @@ class OWQSARReportGenerator(OWWidget):
             plot.clear()
         if met_df is None or met_df.empty:
             return
-        if not {"group", "metric", "value"}.issubset(met_df.columns):
+        lookup = _metric_lookup(met_df)
+        if not lookup:
             return
 
         groups = ["train", "test", "cross_validation"]
         labels = ["Train", "Test", "CV"]
         colors = [_C_TRAIN, _C_TEST, _C_CV]
 
+        metric_aliases = {
+            "r2": ["r2", "q2", "r_2", "q_2", "cv_r2"],
+            "rmse": ["rmse"],
+            "mae": ["mae"],
+        }
         for plot, key in [(self._met_r2, "r2"), (self._met_rmse, "rmse"), (self._met_mae, "mae")]:
+            used_values: list[float] = []
             plot.getPlotItem().getAxis("bottom").setTicks([
                 [(i, lbl) for i, lbl in enumerate(labels)]
             ])
-            for i, (grp, lbl, rgba) in enumerate(zip(groups, labels, colors)):
-                rows = met_df[met_df["group"] == grp]
-                # find any row whose metric name ends with key
-                row = rows[rows["metric"].str.endswith(key)]
-                if row.empty:
+            for i, (grp, _lbl, rgba) in enumerate(zip(groups, labels, colors)):
+                val = _first_metric(lookup, metric_aliases[key], [grp])
+                if val is None:
                     continue
-                val = float(row.iloc[0]["value"])
                 if not np.isfinite(val):
                     continue
+                used_values.append(float(val))
                 bar = pg.BarGraphItem(x=[i], height=[val], width=0.5,
                                       brush=pg.mkBrush(*rgba),
                                       pen=pg.mkPen(None))
@@ -519,33 +855,29 @@ class OWQSARReportGenerator(OWWidget):
                 txt.setFont(QFont("Arial", 9))
                 txt.setPos(i, val)
                 plot.addItem(txt)
+            if used_values:
+                y_min = min(0.0, float(min(used_values)))
+                y_max = float(max(used_values))
+                y_pad = max((y_max - y_min) * 0.12, 0.1)
+                plot.setXRange(-0.6, len(labels) - 0.4, padding=0.0)
+                plot.setYRange(y_min - y_pad * 0.25, y_max + y_pad, padding=0.0)
 
     def _update_importance(self, expl_df: Optional[pd.DataFrame]) -> None:
         self._imp_plot.clear()
         if expl_df is None or expl_df.empty:
+            self._imp_placeholder.setText("Connect Explanation Summary or Feature Importance to see top descriptors.")
+            self._imp_placeholder.setVisible(True)
+            return
+        df = _importance_frame(expl_df)
+        if df.empty:
+            self._imp_placeholder.setText("Could not detect feature importance rows in the supplied explanation table.")
             self._imp_placeholder.setVisible(True)
             return
         self._imp_placeholder.setVisible(False)
+        df = df.sort_values("importance", key=lambda s: s.abs(), ascending=False).head(25)
 
-        # Try common column names for feature / importance
-        feat_col = next((c for c in expl_df.columns
-                         if c.lower() in {"feature", "feature_name", "descriptor"}), None)
-        imp_col  = next((c for c in expl_df.columns
-                         if c.lower() in {"importance", "score", "mean_abs_shap",
-                                          "mean_importance", "coefficient"}), None)
-        if feat_col is None or imp_col is None:
-            self._imp_placeholder.setText("Could not detect feature/importance columns.")
-            self._imp_placeholder.setVisible(True)
-            return
-
-        df = expl_df[[feat_col, imp_col]].dropna().copy()
-        df[imp_col] = pd.to_numeric(df[imp_col], errors="coerce")
-        df = df.dropna().sort_values(imp_col, ascending=False).head(25)
-        if df.empty:
-            return
-
-        names  = df[feat_col].tolist()
-        values = df[imp_col].values.astype(float)
+        names = df["feature"].astype(str).tolist()
+        values = df["importance"].to_numpy(dtype=float)
         n = len(names)
 
         # horizontal bars
@@ -558,6 +890,9 @@ class OWQSARReportGenerator(OWWidget):
             [[(i, nm) for i, nm in enumerate(names[::-1])]]
         )
         self._imp_plot.setYRange(-0.5, n - 0.5)
+        x_abs_max = float(np.max(np.abs(values))) if len(values) else 0.0
+        x_pad = max(x_abs_max * 0.08, 0.1)
+        self._imp_plot.setXRange(min(0.0, float(np.min(values))) - x_pad, max(0.0, float(np.max(values))) + x_pad, padding=0.0)
 
     # ── hover handlers ────────────────────────────────────────────────────────
 
@@ -579,6 +914,10 @@ class OWQSARReportGenerator(OWWidget):
             hover_lbl.setText(f"  {lbl}   pred={x:.3f}   residual={y:.3f}")
         else:
             hover_lbl.clear_point()
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        QTimer.singleShot(0, self._refresh_current_tab)
 
     def onDeleteWidget(self) -> None:
         try:

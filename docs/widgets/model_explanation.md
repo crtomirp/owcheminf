@@ -1,6 +1,6 @@
 # Model Explanation
 
-**Category:** Cheminf - Modeling  
+**Category:** Cheminf - QSAR  
 **Widget:** Model Explanation
 
 The Model Explanation widget ranks descriptor and fingerprint features that influence QSAR models. It can use a model supplied by QSAR Model Hub or fit an internal fallback model for teaching and rapid interpretation.
@@ -24,10 +24,14 @@ The Model Explanation widget ranks descriptor and fingerprint features that infl
 - permutation importance,
 - univariate correlation fallback.
 
+If no model is connected, the widget fits an internal fallback regressor so the
+explanation workflow can still be used for teaching, quick audits and descriptor
+triage.
+
 ## Recommended workflow
 
 ```text
-QSAR Dataset Builder → Descriptors/Fingerprints → QSAR Model Hub → Model Explanation
+QSAR Dataset Builder → Descriptors/Fingerprints → QSAR/QSPR Model Hub → Model Explanation
 ```
 
 For cyclic registry fingerprints, connect **Cyclic Registry Fingerprint → Matched Registry Entries** alongside Model Explanation to interpret important bits chemically.

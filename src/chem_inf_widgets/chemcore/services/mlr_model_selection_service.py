@@ -169,9 +169,6 @@ def results_table(
 
     attrs.append(DiscreteVariable(_unique_name(f"{prefix}_in_AD", used), values=("False", "True")))
 
-    domain = Domain(attrs, data.domain.class_vars, data.domain.metas)
-    out = data.transform(domain)
-
     cols = []
     if y_true is not None:
         cols.append(y_true.reshape(-1, 1))
@@ -199,8 +196,12 @@ def results_table(
 
     cols.append(in_ad.astype(int).reshape(-1, 1))
 
-    out.X = np.hstack(cols).astype(float)
-    return out
+    domain = Domain(attrs, data.domain.class_vars, data.domain.metas)
+    X = np.hstack(cols).astype(float)
+    Y = data.Y if data.domain.class_vars else None
+    W = data.W if data.has_weights() else None
+    attributes = dict(getattr(data, "attributes", {}))
+    return Table.from_numpy(domain, X=X, Y=Y, metas=data.metas, W=W, attributes=attributes, ids=data.ids)
 
 
 def build_summary_html(

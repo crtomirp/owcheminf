@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import pytest
 from Orange.data import ContinuousVariable, DiscreteVariable, Domain, StringVariable, Table
 
@@ -13,6 +14,10 @@ from AnyQt.QtWidgets import QApplication
 from chem_inf_widgets.chemcore.services.qsar_model_hub_service import (
     QSARModelHubConfig,
     train_qsar_model_hub,
+)
+from chem_inf_widgets.chemcore.services.qsar_prediction_packager_service import (
+    QSARPredictionModelBundle,
+    write_model_bundle_package,
 )
 from chem_inf_widgets.widgets.ow_qsar_model_hub import (
     OWQSARModelHub,
@@ -246,6 +251,31 @@ def test_qsar_model_hub_widget_updates_selected_table_tab():
 
         assert widget._tbl_selected.rowCount() == 2
         assert widget._tabs.tabText(widget._tabs.indexOf(widget._selected_tab)) == "Selected (2)"
+    finally:
+        widget.onDeleteWidget()
+        widget.close()
+
+
+def test_qsar_model_hub_builds_prediction_bundle_with_training_summary(tmp_path):
+    result = train_qsar_model_hub(
+        _demo_df(),
+        QSARModelHubConfig(target_column="pActivity", id_column="compound_id", model_key="ridge", cv_folds=3),
+    )
+    widget = OWQSARModelHub()
+    try:
+        widget.target_unit = "log units"
+        widget._last_model_name = "Ridge"
+        bundle = widget._build_prediction_bundle(result)
+        paths = write_model_bundle_package(bundle, tmp_path / "ridge_bundle")
+
+        assert isinstance(bundle, QSARPredictionModelBundle)
+        assert bundle.target_label == "pActivity"
+        assert bundle.training_rows == result.n_rows_used
+        assert bundle.training_summary["target_unit"] == "log units"
+        assert bundle.training_summary["model_display_name"] == "Ridge"
+        assert bundle.training_summary["selected_feature_names"]
+        assert (tmp_path / "ridge_bundle.model.pkl").exists()
+        assert Path(paths["manifest_json"]).exists()
     finally:
         widget.onDeleteWidget()
         widget.close()

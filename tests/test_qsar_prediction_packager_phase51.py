@@ -1,7 +1,11 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from Orange.widgets.tests.base import WidgetTest
+from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.pipeline import Pipeline
 import pytest
 from types import SimpleNamespace
 
@@ -18,7 +22,10 @@ from chem_inf_widgets.chemcore.services.qsar_prediction_packager_service import 
     QSARPredictionPackagerConfig,
     QSARPredictionModelBundle,
     build_qsar_prediction_bundle,
+    load_model_pickle,
     predict_with_qsar_model,
+    selected_feature_names_from_model,
+    write_model_bundle_package,
 )
 from chem_inf_widgets.chemcore.services.qsar_regression_service import (
     RDKit_DESCRIPTOR_NAMES,
@@ -264,6 +271,62 @@ def test_build_qsar_prediction_bundle_preserves_mlr_style_feature_contract():
     assert list(bundle.selected_feature_names) == ["MolWt", "TPSA"]
     assert bundle.source_widget == "MLR Model Selection"
     assert bundle.model_name == "Multiple Linear Regression"
+
+
+def test_selected_feature_names_from_model_reads_selector_support():
+    X = pd.DataFrame(
+        {
+            "MolWt": [100.0, 120.0, 140.0, 160.0, 180.0, 200.0],
+            "MolLogP": [1.1, 1.3, 1.7, 2.0, 2.4, 2.8],
+            "TPSA": [20.0, 18.0, 16.0, 15.0, 12.0, 10.0],
+        }
+    )
+    y = np.array([5.0, 5.4, 5.8, 6.0, 6.4, 6.8], dtype=float)
+    pipe = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median")),
+            ("selector", SelectKBest(f_regression, k=2)),
+            ("model", LinearRegression()),
+        ]
+    )
+    pipe.fit(X, y)
+
+    selected = selected_feature_names_from_model(pipe, fallback_features=list(X.columns))
+
+    assert len(selected) == 2
+    assert set(selected).issubset(set(X.columns))
+
+
+def test_write_model_bundle_package_writes_fair_artifacts(tmp_path):
+    train_smiles = ["CCO", "CCN", "c1ccccc1", "CC(=O)O", "CCCO", "CCCl"]
+    X_train = _rdkit_training_frame(train_smiles)[["MolWt", "MolLogP"]]
+    y_train = 0.02 * X_train["MolWt"] + 0.40 * X_train["MolLogP"]
+    model = LinearRegression().fit(X_train, y_train)
+    bundle = build_qsar_prediction_bundle(
+        model,
+        feature_names=list(X_train.columns),
+        target_label="BoilingPoint",
+        recipe_kind="rdkit_compact",
+        model_name="Linear Regression",
+        source_widget="QSAR/QSPR Model Hub",
+        training_rows=len(X_train),
+        selected_feature_names=["MolWt"],
+        training_summary={"test_r2": 0.82, "target_unit": "degC"},
+    )
+
+    paths = write_model_bundle_package(bundle, tmp_path / "boiling_point_model.pkl")
+    loaded = load_model_pickle(paths["model_pickle"])
+    manifest = pd.read_json(paths["manifest_json"], typ="series")
+
+    assert Path(paths["model_pickle"]).exists()
+    assert Path(paths["manifest_json"]).exists()
+    assert Path(paths["feature_names_txt"]).exists()
+    assert Path(paths["selected_features_txt"]).exists()
+    assert isinstance(loaded, QSARPredictionModelBundle)
+    assert loaded.target_label == "BoilingPoint"
+    assert loaded.training_summary["target_unit"] == "degC"
+    assert manifest["artifact_kind"] == "qsar_prediction_model_bundle"
+    assert manifest["selected_feature_names"] == ["MolWt"]
 
 
 class TestOWQSARPredictionPackager(WidgetTest):

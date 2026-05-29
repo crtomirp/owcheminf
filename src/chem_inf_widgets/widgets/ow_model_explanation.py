@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import traceback
+from html import escape
 
 import numpy as np
 import pandas as pd
@@ -123,7 +124,13 @@ class OWModelExplanation(OWWidget):
     want_main_area = True
     resizing_enabled = True
 
-    methods: list[str] = ["auto", "permutation", "univariate"]
+    METHOD_OPTIONS: tuple[tuple[str, str], ...] = (
+        ("auto", "Auto"),
+        ("model_importance", "Model importance"),
+        ("coefficient", "Coefficient"),
+        ("permutation", "Permutation"),
+        ("univariate", "Univariate"),
+    )
 
     # ------------------------------------------------------------------
     # Inputs / Outputs
@@ -224,8 +231,11 @@ class OWModelExplanation(OWWidget):
 
         grp_expl_layout.addWidget(QLabel("Method:"))
         self._method_combo = QComboBox()
-        self._method_combo.addItems(self.methods)
-        self._method_combo.setCurrentIndex(self.method_index)
+        for _value, label in self.METHOD_OPTIONS:
+            self._method_combo.addItem(label)
+        self._method_combo.setCurrentIndex(
+            min(self.method_index, self._method_combo.count() - 1)
+        )
         self._method_combo.currentIndexChanged.connect(self._on_method_changed)
         grp_expl_layout.addWidget(self._method_combo)
 
@@ -323,7 +333,7 @@ class OWModelExplanation(OWWidget):
         self._maybe_autorun()
 
     def _maybe_autorun(self):
-        if self.auto_run and self._data is not None and self._model is not None:
+        if self.auto_run and self._data is not None:
             self.commit()
 
     # ------------------------------------------------------------------
@@ -334,12 +344,20 @@ class OWModelExplanation(OWWidget):
         self._data = data
         if data is not None:
             self._auto_detect_columns(data)
-        if self.auto_run and self._model is not None:
+            self._set_status(f"{len(data)} rows ready")
+        else:
+            self._send_none()
+            self._set_status("Awaiting data", error=False)
+        if self.auto_run:
             self.commit()
 
     @Inputs.model
     def set_model(self, model):
         self._model = model
+        if model is None and self._data is not None:
+            self._set_status("No model supplied — fallback explainer available")
+        elif model is not None and self._data is not None:
+            self._set_status("Data + model ready")
         if self.auto_run and self._data is not None:
             self.commit()
 
@@ -356,7 +374,12 @@ class OWModelExplanation(OWWidget):
         names = [v.name for v in all_vars]
 
         # target
-        if not self._target_edit.text().strip():
+        current_target = self._target_edit.text().strip()
+        if not current_target or current_target not in names:
+            if data.domain.class_vars:
+                self._target_edit.setText(data.domain.class_vars[0].name)
+                current_target = data.domain.class_vars[0].name
+        if not current_target:
             for kw in ("pactivity", "activity", "target"):
                 for i, nl in enumerate(names_lower):
                     if kw in nl:
@@ -367,7 +390,8 @@ class OWModelExplanation(OWWidget):
                 break
 
         # id
-        if not self._id_edit.text().strip():
+        current_id = self._id_edit.text().strip()
+        if not current_id or current_id not in names:
             for kw in ("compound_id", "id", "name"):
                 for i, nl in enumerate(names_lower):
                     if kw in nl:
@@ -381,25 +405,29 @@ class OWModelExplanation(OWWidget):
     # Commit / run
     # ------------------------------------------------------------------
     def commit(self):
-        if self._data is None or self._model is None:
+        if self._data is None:
             self._send_none()
-            self._set_status("No data/model", error=True)
+            self._set_status("No data", error=True)
             return
 
         if self._worker is not None and self._worker.isRunning():
             return  # already running
 
         df = _table_to_df(self._data)
+        method_value = self.METHOD_OPTIONS[int(self._method_combo.currentIndex())][0]
         cfg = ModelExplanationConfig(
             target_column=self._target_edit.text().strip() or "pActivity",
             id_column=self._id_edit.text().strip() or "compound_id",
-            method=self.methods[int(self.method_index)],
+            method=method_value,
             max_features=int(self._max_features_spin.value()),
         )
 
         self._run_btn.setEnabled(False)
         self._progress.setVisible(True)
-        self._set_status("Running…")
+        if self._model is None:
+            self._set_status("Running fallback explainer…")
+        else:
+            self._set_status("Running…")
 
         self._worker = _Worker(df, self._model, cfg, parent=self)
         self._worker.finished.connect(self._finish)
@@ -413,6 +441,7 @@ class OWModelExplanation(OWWidget):
     def _finish(self, result):
         self._run_btn.setEnabled(True)
         self._progress.setVisible(False)
+        self._worker = None
 
         # Send outputs
         self.Outputs.feature_importance.send(_df_to_table(result.feature_importance))
@@ -433,8 +462,10 @@ class OWModelExplanation(OWWidget):
     def _on_error(self, msg: str):
         self._run_btn.setEnabled(True)
         self._progress.setVisible(False)
+        self._worker = None
         self._send_none()
         self._set_status("Error", error=True)
+        self._local_browser.setHtml("<p><i>No local contributions available.</i></p>")
         self._summary_browser.setPlainText(f"Model Explanation failed:\n\n{msg}")
 
     # ------------------------------------------------------------------
@@ -514,52 +545,102 @@ class OWModelExplanation(OWWidget):
             return
 
         id_col = self._id_edit.text().strip() or "compound_id"
-        # find all feature columns (non-id)
-        feat_cols = [c for c in lc_df.columns if c != id_col]
+        id_candidates = [id_col, "compound_id", "id", "name"]
+        id_column = next((col for col in id_candidates if col in lc_df.columns), lc_df.columns[0])
+        contrib_column = (
+            "top_contributing_features"
+            if "top_contributing_features" in lc_df.columns
+            else next((col for col in lc_df.columns if "contribut" in str(col).lower()), None)
+        )
+        score_column = (
+            "approx_local_score"
+            if "approx_local_score" in lc_df.columns
+            else next((col for col in lc_df.columns if "score" in str(col).lower()), None)
+        )
 
-        html_parts = [
-            "<html><body style='font-family:monospace;font-size:12px;'>",
-            "<h3>Local Contributions (top 5 features per compound)</h3>",
-        ]
-
+        rows = []
         max_compounds = min(50, len(lc_df))
         for _, row in lc_df.head(max_compounds).iterrows():
-            cid = row[id_col] if id_col in row.index else "?"
-            html_parts.append(f"<b>Compound:</b> {cid}<br>")
-            html_parts.append(
-                "<table border='0' cellspacing='2' style='margin-left:12px;'>"
-                "<tr><th align='left'>Feature</th><th align='right'>Contribution</th></tr>"
-            )
-            # sort feature cols by abs value
-            vals = {c: row[c] for c in feat_cols if pd.notna(row.get(c, None))}
-            sorted_feats = sorted(vals.items(), key=lambda x: abs(x[1]), reverse=True)[:5]
-            for fname, fval in sorted_feats:
-                color = "#1a6e1a" if fval >= 0 else "#a40000"
-                html_parts.append(
-                    f"<tr><td>{fname}</td>"
-                    f"<td align='right' style='color:{color};'>{fval:+.4g}</td></tr>"
-                )
-            html_parts.append("</table><hr>")
+            cid = escape(str(row.get(id_column, "?")))
+            score_html = ""
+            if score_column is not None:
+                try:
+                    score_html = f"<div style='color:#64748b;font-size:11px;'>Approx local score: {float(row.get(score_column, 0.0)):+.4g}</div>"
+                except Exception:
+                    score_html = ""
+            contrib_text = str(row.get(contrib_column, "")).strip() if contrib_column is not None else ""
+            if contrib_text:
+                items = []
+                for chunk in contrib_text.split(";"):
+                    token = chunk.strip()
+                    if not token:
+                        continue
+                    if ":" in token:
+                        feat, raw_val = token.split(":", 1)
+                        feat = escape(feat.strip())
+                        try:
+                            val = float(raw_val)
+                            color = "#166534" if val >= 0 else "#b91c1c"
+                            items.append(
+                                f"<li><span style='font-weight:600;'>{feat}</span> "
+                                f"<span style='color:{color};'>{val:+.4g}</span></li>"
+                            )
+                        except Exception:
+                            items.append(f"<li>{escape(token)}</li>")
+                    else:
+                        items.append(f"<li>{escape(token)}</li>")
+                contrib_html = "<ul style='margin:6px 0 0 16px;padding:0;'>" + "".join(items) + "</ul>" if items else "<i>No contribution breakdown.</i>"
+            else:
+                contrib_html = "<i>No contribution breakdown.</i>"
 
-        html_parts.append("</body></html>")
-        self._local_browser.setHtml("".join(html_parts))
+            rows.append(
+                "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;'>"
+                f"<div style='font-weight:700;color:#0f172a;'>{cid}</div>"
+                f"{score_html}{contrib_html}</div>"
+            )
+
+        html = (
+            "<html><body style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;font-size:12px;color:#0f172a;'>"
+            "<h3 style='margin-top:0;'>Approximate local contributions</h3>"
+            "<p style='color:#475569;'>Top compound-level drivers derived from centered feature values and global importance weights.</p>"
+            + "".join(rows)
+            + "</body></html>"
+        )
+        self._local_browser.setHtml(html)
 
     def _populate_summary(self, result):
         sd = result.summary_dict
-        lines = [
-            "Model Explanation Summary",
-            "=========================",
-            f"Method:         {sd.get('method_used', '?')}",
-            f"Rows used:      {sd.get('n_rows_used', '?')}",
-            f"Features used:  {sd.get('n_features_used', '?')}",
-            f"Features reported: {sd.get('features_reported', '?')}",
-            "",
-            "Top features:",
-        ]
-        for entry in sd.get("top_features", [])[:20]:
+        feature_rows = []
+        for rank, entry in enumerate(sd.get("top_features", [])[:20], start=1):
             score = entry.get("normalized_importance", entry.get("importance", 0))
-            lines.append(f"  {entry['rank']:>3}. {entry['feature']}: {score:.4g}")
-        self._summary_browser.setPlainText("\n".join(lines))
+            feature_rows.append(
+                f"<tr><td>{rank}</td><td>{escape(str(entry.get('feature', '')))}</td>"
+                f"<td style='text-align:right;'>{float(score):.4g}</td></tr>"
+            )
+        if not feature_rows:
+            feature_rows.append("<tr><td colspan='3'><i>No feature importance rows available.</i></td></tr>")
+
+        html = f"""
+        <html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;color:#0f172a;padding:8px 10px;">
+        <h2 style="margin:0 0 8px 0;">Model Explanation Summary</h2>
+        <table style="border-collapse:collapse;width:100%;margin-bottom:12px;">
+          <tr><td style="padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Method</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">{escape(str(sd.get('method_used', '?')))}</td></tr>
+          <tr><td style="padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Rows used</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">{sd.get('n_rows_used', '?')}</td></tr>
+          <tr><td style="padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Features used</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">{sd.get('n_features_used', '?')}</td></tr>
+          <tr><td style="padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Features reported</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">{sd.get('features_reported', '?')}</td></tr>
+        </table>
+        <h3 style="margin:14px 0 8px 0;">Top features</h3>
+        <table style="border-collapse:collapse;width:100%;">
+          <tr>
+            <th style="text-align:left;padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Rank</th>
+            <th style="text-align:left;padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Feature</th>
+            <th style="text-align:right;padding:6px 8px;border:1px solid #e2e8f0;background:#f8fafc;">Normalized importance</th>
+          </tr>
+          {''.join(feature_rows)}
+        </table>
+        </body></html>
+        """
+        self._summary_browser.setHtml(html)
 
     # ------------------------------------------------------------------
     # Helpers

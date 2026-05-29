@@ -261,17 +261,17 @@ class OWQSARDatasetBuilder(OWWidget):
         # ── Curation ──────────────────────────────────────────────────────
         curation = gui.widgetBox(ca, "Curation")
         gui.lineEdit(curation, self, "target_endpoint", label="Endpoint filter:",
-                     orientation="horizontal", labelWidth=100, callback=self._settings_changed)
+                     orientation=Qt.Horizontal, labelWidth=100, callback=self._settings_changed)
         gui.lineEdit(curation, self, "target_unit", label="Target unit:",
-                     orientation="horizontal", labelWidth=100, callback=self._settings_changed)
+                     orientation=Qt.Horizontal, labelWidth=100, callback=self._settings_changed)
         gui.comboBox(curation, self, "relation_policy", label="Relations:",
-                     orientation="horizontal", labelWidth=100,
+                     orientation=Qt.Horizontal, labelWidth=100,
                      items=self.relation_options, callback=self._settings_changed)
         gui.comboBox(curation, self, "aggregation", label="Aggregation:",
-                     orientation="horizontal", labelWidth=100,
+                     orientation=Qt.Horizontal, labelWidth=100,
                      items=self.aggregation_options, callback=self._settings_changed)
         gui.comboBox(curation, self, "duplicate_key", label="Dup. key:",
-                     orientation="horizontal", labelWidth=100,
+                     orientation=Qt.Horizontal, labelWidth=100,
                      items=self.duplicate_options, callback=self._settings_changed)
 
         pact_row = gui.hBox(curation)

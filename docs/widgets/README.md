@@ -4,6 +4,8 @@ Current widget notes and diagnostic entry points:
 
 ### Input / Output
 
+- [molecule_import_hub.md](molecule_import_hub.md)
+- [molecule_export_hub.md](molecule_export_hub.md)
 - [sdf_reader.md](sdf_reader.md)
 - [sdf_writer.md](sdf_writer.md)
 - `Widget Smoke Tester` — runtime and workflow smoke diagnostics
@@ -49,6 +51,15 @@ Current widget notes and diagnostic entry points:
 
 ### Modeling
 
+- [qsar_dataset_builder.md](qsar_dataset_builder.md)
+- [descriptor_explorer.md](descriptor_explorer.md)
+- [descriptor_filter.md](descriptor_filter.md)
+- [qsar_model_hub.md](qsar_model_hub.md)
+- [qsar_validation_dashboard.md](qsar_validation_dashboard.md)
+- [applicability_domain.md](applicability_domain.md)
+- [model_explanation.md](model_explanation.md)
+- [qsar_report_generator.md](qsar_report_generator.md)
+- [qsar_prediction_packager.md](qsar_prediction_packager.md)
 - [qsar_regression.md](qsar_regression.md)
 - [mlr_model_selection.md](mlr_model_selection.md)
 

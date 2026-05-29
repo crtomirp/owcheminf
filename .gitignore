@@ -6,6 +6,7 @@ __pycache__/
 **/._*
 *.swp
 *.swo
+*.bak
 
 build/
 dist/
@@ -21,6 +22,7 @@ __MACOSX/
 
 out*.sdf
 test.sdf
+molecules_export.*
 src.zip
 src/chem_inf_widgets.zip
 test_out

@@ -4,6 +4,7 @@
 **Widget:** QSAR Prediction Packager
 
 The QSAR Prediction Packager applies a trained QSAR model to external/query compounds and creates a prediction package with predictions, feature report, manifest and failed records.
+It works directly with the `Model` output from `QSAR/QSPR Model Hub`, including exported FAIR model bundles reloaded from pickle in CLI workflows.
 
 ## Inputs
 

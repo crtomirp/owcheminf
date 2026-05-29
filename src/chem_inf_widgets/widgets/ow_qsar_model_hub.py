@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import traceback
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -14,6 +15,7 @@ from AnyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
+    QFileDialog,
     QFrame,
     QGroupBox,
     QHBoxLayout,
@@ -62,7 +64,10 @@ from chem_inf_widgets.chemcore.services.qsar_target_contract import (
     preferred_target_name_from_table,
 )
 from chem_inf_widgets.chemcore.services.qsar_prediction_packager_service import (
+    QSARPredictionModelBundle,
     build_qsar_prediction_bundle,
+    selected_feature_names_from_model,
+    write_model_bundle_package,
 )
 from chem_inf_widgets.widgets import qsar_diagnostics_ui
 
@@ -203,6 +208,7 @@ class OWQSARModelHub(OWWidget):
         self._diagnostic_canvas = None
         self._diagnostic_fig = None
         self._last_model_name = "Random Forest"
+        self._last_bundle: Optional[QSARPredictionModelBundle] = None
 
         if not self._HPO_AVAILABLE:
             self.use_hpo = False
@@ -319,6 +325,11 @@ class OWQSARModelHub(OWWidget):
         self._btn_train = QPushButton("Train model")
         self._btn_train.clicked.connect(self.commit)
         mdl_vl.addWidget(self._btn_train)
+
+        self._btn_export_model = QPushButton("Export FAIR model bundle")
+        self._btn_export_model.setEnabled(False)
+        self._btn_export_model.clicked.connect(self.export_model_bundle)
+        mdl_vl.addWidget(self._btn_export_model)
 
         self._progress = QProgressBar()
         self._progress.setRange(0, 0)
@@ -546,6 +557,7 @@ class OWQSARModelHub(OWWidget):
 
     def _set_busy(self, busy: bool) -> None:
         self._btn_train.setEnabled(not busy)
+        self._btn_export_model.setEnabled((not busy) and self._last_bundle is not None)
         self._cmb_algo.setEnabled(not busy)
         self._ed_target.setEnabled(not busy)
         self._ed_id.setEnabled(not busy)
@@ -736,20 +748,11 @@ class OWQSARModelHub(OWWidget):
         r: QSARModelHubResult = result
         self._last_result = r
         self._last_model_name = _display_model_name(r.model_key)
+        self._last_bundle = self._build_prediction_bundle(r)
         self._set_busy(False)
 
         self._predictions_table = _dataframe_to_orange(r.predictions)
-        self.Outputs.model.send(
-            build_qsar_prediction_bundle(
-                r.pipeline,
-                feature_names=list(r.feature_names),
-                target_label=r.target_column,
-                model_name=self._last_model_name,
-                source_widget=self.name,
-                training_rows=r.n_rows_used,
-                selected_feature_names=list(r.feature_names),
-            )
-        )
+        self.Outputs.model.send(self._last_bundle)
         self.Outputs.predictions.send(self._predictions_table)
         self.Outputs.metrics.send(_dataframe_to_orange(r.metrics_table))
         self.Outputs.model_summary.send(_dataframe_to_orange(pd.DataFrame([r.summary])))
@@ -779,12 +782,14 @@ class OWQSARModelHub(OWWidget):
 
     def _clear_outputs(self) -> None:
         self._last_result = None
+        self._last_bundle = None
         self._predictions_table = None
         self.Outputs.model.send(None)
         self.Outputs.predictions.send(None)
         self.Outputs.metrics.send(None)
         self.Outputs.model_summary.send(None)
         self.Outputs.selected_compounds.send(None)
+        self._btn_export_model.setEnabled(False)
         self._txt_summary.clear()
         self._pw_hpo.clear()
         self._pw_pimp.clear()
@@ -793,6 +798,55 @@ class OWQSARModelHub(OWWidget):
         self._tbl_features.setRowCount(0)
         self._update_selected_table(None)
         self._reset_diagnostics_view("Awaiting model results to render diagnostics.")
+
+    def _bundle_training_summary(self, r: QSARModelHubResult) -> dict:
+        summary = dict(r.summary or {})
+        summary["target_unit"] = self.target_unit.strip()
+        summary["model_display_name"] = self._last_model_name
+        summary["selected_feature_names"] = selected_feature_names_from_model(
+            r.pipeline,
+            fallback_features=list(r.feature_names),
+        )
+        return summary
+
+    def _build_prediction_bundle(self, r: QSARModelHubResult) -> QSARPredictionModelBundle:
+        selected_features = selected_feature_names_from_model(
+            r.pipeline,
+            fallback_features=list(r.feature_names),
+        )
+        return build_qsar_prediction_bundle(
+            r.pipeline,
+            feature_names=list(r.feature_names),
+            target_label=r.target_column,
+            model_name=self._last_model_name,
+            source_widget=self.name,
+            training_rows=r.n_rows_used,
+            selected_feature_names=selected_features,
+            training_summary=self._bundle_training_summary(r),
+        )
+
+    def _default_export_name(self) -> str:
+        target = (self._ed_target.text().strip() or "target").replace(" ", "_")
+        algo = self._current_model_key().replace(" ", "_")
+        return f"qsar_model_hub_{target}_{algo}"
+
+    def export_model_bundle(self) -> None:
+        if self._last_bundle is None:
+            self._set_status("No trained model available for export.", ok=False)
+            return
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export FAIR model bundle",
+            self._default_export_name(),
+            "Pickle Files (*.pkl)",
+        )
+        if not filename:
+            return
+        try:
+            paths = write_model_bundle_package(self._last_bundle, filename)
+            self._set_status(f"Exported bundle · {Path(paths['model_pickle']).name}", ok=True)
+        except Exception as exc:
+            self._set_status(f"Export failed: {exc}", ok=False)
 
     def _populate_plots(self, r: QSARModelHubResult) -> None:
         self._populate_diagnostics(r)

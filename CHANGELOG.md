@@ -1,8 +1,50 @@
+## 0.2.7 - Descriptor Pre-selector dashboard UI
+
+- Fixed the macOS layout issue where the control panel could occupy most of the widget window.
+- Forced a compact fixed-width control panel and expandable report area for a reliable 30:70 working layout.
+- Reworked the overview tab into a richer dashboard-style report with KPI cards, filtering cascade, quality flags, cluster summary, data summary, and QSAR next-step guidance.
+
+
+## 0.2.6 - Descriptor Pre-selector layout correction
+
+- Corrected Descriptor Pre-selector split logic to enforce a true controls/report 30:70 layout.
+- Splitter sizing now detects the actual Qt child order instead of assuming index order.
+
+
+## 0.2.5 - Descriptor Pre-selector UI/report polish
+
+- Improved Descriptor Pre-selector layout preference to approximately 30:70 left/right panel ratio.
+- Replaced the plain-text summary with a publication/workflow-oriented HTML report.
+- Added quality flags, filter cascade table, settings summary, correlation-cluster overview and downstream QSAR recommendation.
+
+## 0.2.4
+
+- Renamed Descriptor Explorer widget display name to **QSAR Descriptor Explorer** for easier discovery in Orange.
+- Widget remains registered under **Cheminf - QSAR**.
+
 # Changelog
+
+## 0.2.3 - QSAR report/model hub compatibility
+
+- Added a `Model Summary` input to `QSAR Report Generator`.
+- `QSAR/QSPR Model Hub → Model Summary` can now be connected directly to the report generator.
+- If both `Validation Summary` and `Model Summary` are connected, `Validation Summary` is used first.
+- Updated QSAR report documentation with the recommended connection map.
+
 
 All notable changes to this project will be documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [0.2.2] - 2026-05-17
+
+### Added
+- Added `Descriptor Explorer` widget to the public QSAR workflow palette.
+- Added reusable `qsar_descriptor_explorer_service` for descriptor category inference, missing-value checks, low-variance flags, high-correlation redundancy detection, filtered descriptor output, and HTML/Markdown quality reports.
+- Added tests for descriptor quality flags, category inference, and redundancy filtering.
+
+### Changed
+- Extended the recommended QSAR workflow to include descriptor matrix exploration before descriptor preselection and model training.
 
 ## [0.2.1] - 2026-05-17
 

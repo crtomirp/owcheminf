@@ -9,6 +9,7 @@ specialized and experimental widgets available for developers and advanced users
 Entry-point widgets for most workflows:
 
 - Molecule Import Hub
+- Molecule Export Hub
 - SDF Reader
 - SDF Writer
 - ChEMBL Browser
@@ -46,11 +47,13 @@ Rule-based filtering and alert workflows:
 
 ## Cheminf - QSAR
 
-Compact public QSAR/QSPR workflow:
+Public QSAR/QSPR workflow and diagnostics:
 
 - QSAR Dataset Builder
+- QSAR Descriptor Explorer
 - Descriptor Pre-selector
 - QSAR/QSPR Model Hub
+- QSAR Validation Dashboard
 - Applicability Domain
 - Model Explanation
 - QSAR Report Generator
@@ -75,7 +78,6 @@ experimental, diagnostic, overlapping, specialized, or optional-dependency-heavy
 - Cyclic Registry Fingerprint
 - ISIDA Descriptors
 - PaDEL Descriptors
-- QSAR Validation Dashboard
 - Applicability Domain Workbench
 - Atom Contribution Map
 - QSAR Regression
@@ -93,4 +95,3 @@ The next public-facing additions that would strengthen the package are:
 - Train/Test Splitter for QSAR: random, scaffold, cluster, and time-based splitting.
 - Outlier & Leverage Inspector: residual, leverage, applicability-domain, and suspicious-compound view.
 - Similarity Network: graph view of molecular similarity relationships.
-
