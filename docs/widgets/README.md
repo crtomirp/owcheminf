@@ -1,5 +1,11 @@
 # Widget Notes
 
+> These `*.md` files are also the source for in-app **F1 help**. The build step
+> `python scripts/build_widget_help.py` converts them to the bundled help pages
+> Orange opens on F1 — see [developer/widget_help.md](../developer/widget_help.md).
+> Start each file with `# <Widget Name>` and, when adding a new widget whose doc
+> name is not `ow_<x>.py` → `<x>.md`, add it to `DOC_OVERRIDES` in that script.
+
 Current widget notes and diagnostic entry points:
 
 ### Input / Output
@@ -63,6 +69,7 @@ Current widget notes and diagnostic entry points:
 - [qsar_regression.md](qsar_regression.md)
 - [mlr_model_selection.md](mlr_model_selection.md)
 - [symbolic_regression.md](symbolic_regression.md)
+- [cmdock_docking.md](cmdock_docking.md) — CmDock molecular docking
 
 ### Reactions
 

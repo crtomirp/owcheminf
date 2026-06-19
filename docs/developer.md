@@ -7,6 +7,7 @@ This page is the entry point for contributor-facing engineering notes.
 - [Developer architecture](developer/architecture.md)
 - [Service result pattern](developer/service_result_pattern.md)
 - [Widget template](developer/widget_template.md)
+- [Widget help (F1)](developer/widget_help.md)
 - [Testing guide](developer/testing.md)
 
 ## Related project docs

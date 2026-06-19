@@ -74,7 +74,8 @@ dev = [
     "isort",
     "build",
     "twine",
-    "pre-commit"
+    "pre-commit",
+    "markdown"
 ]
 all = [
     "mordred",
@@ -109,6 +110,12 @@ owcheminf-clean-repo = "chem_inf_widgets.chemcore.tools.clean_repo_cli:main"
 [project.entry-points."orange.widgets"]
 Chemoinformatics = "chem_inf_widgets.widgets"
 
+# F1 widget help. The ``html-index`` provider loads ``WIDGET_HELP_PATH`` and
+# matches each widget's ``name`` against the generated ``help/index.html``.
+# Regenerate the bundled pages with ``python scripts/build_widget_help.py``.
+[project.entry-points."orange.canvas.help"]
+html-index = "chem_inf_widgets.widgets:WIDGET_HELP_PATH"
+
 # src-layout konfiguracija
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -127,6 +134,7 @@ where = ["src"]
     "examples/**/*"
 ]
 "chem_inf_widgets.widgets" = [
+    "help/*.html",
     "icons/README.md",
     "icons/analysis/*",
     "icons/categories/*",

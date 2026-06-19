@@ -11,6 +11,9 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+# Generated F1 widget help (rebuild with scripts/build_widget_help.py)
+src/chem_inf_widgets/widgets/help/
 .setuptools-egg-info/*
 !.setuptools-egg-info/.gitkeep
 *.whl
