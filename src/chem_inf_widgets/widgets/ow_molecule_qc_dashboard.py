@@ -27,7 +27,6 @@ from chem_inf_widgets.chemcore.services.molecule_qc_service import (
 from chem_inf_widgets.chemcore.services.report_table_utils import report_rows_to_table, summary_rows_to_table
 from chem_inf_widgets.widgets.ui_helpers import format_done_status, format_failed_status, format_no_input_status, format_table_report, set_widget_warning
 from chem_inf_widgets.widgets.utils import send_output_values, show_service_issues
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 class OWMoleculeQCDashboard(OWWidget):
@@ -180,7 +179,6 @@ class OWMoleculeQCDashboard(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self._in_table = data
         self._table_report = None
         if data is not None and len(data) > 0:
@@ -195,7 +193,6 @@ class OWMoleculeQCDashboard(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[list]) -> None:
-        clear_widget_outputs(self)
         self._in_molecules = [m for m in (mols or []) if isinstance(m, ChemMol)]
         self._update_status(self._input_summary())
         if self.auto_run:

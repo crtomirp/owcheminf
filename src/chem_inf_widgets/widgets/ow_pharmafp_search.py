@@ -25,7 +25,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_required_inputs_status,
     format_waiting_status,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _string_vars(data: Table) -> list[StringVariable]:
@@ -231,35 +230,30 @@ class OWPharmaFPSearch(OWWidget):
 
     @Inputs.query_molecule
     def set_query_molecule(self, molecule: Optional[ChemMol]) -> None:
-        clear_widget_outputs(self)
         self.query_molecule = molecule
         self._update_query_summary()
         self._maybe_commit()
 
     @Inputs.fragment_queries
     def set_fragment_queries(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.fragment_queries = data
         self._update_query_summary()
         self._maybe_commit()
 
     @Inputs.motif_queries
     def set_motif_queries(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.motif_queries = data
         self._update_query_summary()
         self._maybe_commit()
 
     @Inputs.scaffold_query
     def set_scaffold_query(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.scaffold_query = data
         self._update_query_summary()
         self._maybe_commit()
 
     @Inputs.search_profile
     def set_search_profile(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.search_profile = data
         if data is not None and len(data):
             _smiles, _scaffold, _generic, threshold, motif_logic = query_from_search_profile(data)
@@ -272,7 +266,6 @@ class OWPharmaFPSearch(OWWidget):
 
     @Inputs.reference_data
     def set_reference_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reference_data = data
         self._populate_reference_combos()
         self._update_status(

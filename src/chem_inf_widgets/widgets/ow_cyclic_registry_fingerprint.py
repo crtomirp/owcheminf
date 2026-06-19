@@ -36,7 +36,6 @@ from chem_inf_widgets.chemcore.descriptors.cyclic_registry_fingerprint import (
     compute_cyclic_registry_fingerprints_from_smiles,
 )
 from chem_inf_widgets.widgets.ui_helpers import clear_widget_messages, set_widget_error, set_widget_warning
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 # ---------------------------- helpers ----------------------------
@@ -367,7 +366,6 @@ class OWCyclicRegistryFingerprint(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self.Outputs.fingerprints.send(None)
         self.Outputs.matches.send(None)
@@ -389,7 +387,6 @@ class OWCyclicRegistryFingerprint(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[list]) -> None:
-        clear_widget_outputs(self)
         self.molecules_in = mols if mols else None
         self.Outputs.fingerprints.send(None)
         self.Outputs.matches.send(None)

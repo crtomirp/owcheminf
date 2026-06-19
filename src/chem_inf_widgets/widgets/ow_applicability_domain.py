@@ -18,7 +18,6 @@ from chem_inf_widgets.chemcore.services.applicability_domain_service import (
     score_applicability_domain,
 )
 from chem_inf_widgets.widgets.ui_helpers import format_error_status, set_widget_error
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _continuous_feature_names(data: Table) -> List[str]:
@@ -192,7 +191,6 @@ class OWApplicabilityDomain(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._set_status(self._input_summary())
         if bool(self.auto_run) and self.data is not None:
@@ -200,7 +198,6 @@ class OWApplicabilityDomain(OWWidget):
 
     @Inputs.reference_data
     def set_reference_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reference_data = data
         self._set_status(self._input_summary())
         if bool(self.auto_run) and self.data is not None:

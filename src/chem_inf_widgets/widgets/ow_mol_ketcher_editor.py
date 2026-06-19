@@ -37,7 +37,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 try:
     from chem_inf_widgets.chemcore.mol import ChemMol
@@ -181,7 +180,6 @@ class OWMolKetcher(widget.OWWidget, openclass=True):
 
     @Inputs.smiles
     def set_smiles(self, smiles: Optional[str]) -> None:
-        clear_widget_outputs(self)
         if not smiles: return
         self._editor_mode = False
         self._editor_molecules = []
@@ -194,14 +192,12 @@ class OWMolKetcher(widget.OWWidget, openclass=True):
 
     @Inputs.molecule
     def set_molecule(self, mol: Optional[ChemMol]) -> None:
-        clear_widget_outputs(self)
         if mol is None: return
         self._original_smiles_col_name = None
         self._set_editor_molecules([mol])
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[Sequence[ChemMol]]) -> None:
-        clear_widget_outputs(self)
         if not mols: return
         clean: List[ChemMol] = [m for m in mols if isinstance(m, ChemMol)]
         if not clean: return
@@ -210,7 +206,6 @@ class OWMolKetcher(widget.OWWidget, openclass=True):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         clear_widget_messages(self)
         if data is None: return
         if not RDKIT_AVAILABLE or Chem is None:

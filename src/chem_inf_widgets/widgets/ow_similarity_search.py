@@ -20,7 +20,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_waiting_status,
     set_widget_warning,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +144,6 @@ class OWSimilaritySearch(OWWidget):
 
     @Inputs.query_data
     def set_query_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.query_data = data
         self._populate_combo(self.query_combo, data, "query_smiles_var_name")
         self._refresh_reports()
@@ -154,7 +152,6 @@ class OWSimilaritySearch(OWWidget):
 
     @Inputs.reference_data
     def set_reference_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reference_data = data
         self._populate_combo(self.reference_combo, data, "reference_smiles_var_name")
         self._refresh_reports()

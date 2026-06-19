@@ -57,7 +57,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_warning,
 )
 from chem_inf_widgets.widgets.utils import combine_messages, send_output_values
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 logger = logging.getLogger(__name__)
 
@@ -290,7 +289,6 @@ class OWMolStandardizer(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self._in_table = data
         self._table_report = None
         set_widget_warning(self, "")
@@ -305,7 +303,6 @@ class OWMolStandardizer(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[list]) -> None:
-        clear_widget_outputs(self)
         self._in_molecules = [m for m in (mols or []) if isinstance(m, ChemMol)]
         self._update_status(self._input_summary())
 

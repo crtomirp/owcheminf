@@ -16,7 +16,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_result_count_status,
     format_waiting_status,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _guess_smiles_column(data: Table) -> Optional[StringVariable]:
@@ -99,25 +98,21 @@ class OWReactionEnumerator(OWWidget):
 
     @Inputs.reactants_a
     def set_reactants_a(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reactants_a = data
         self._maybe_autorun()
 
     @Inputs.reactants_b
     def set_reactants_b(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reactants_b = data
         self._maybe_autorun()
 
     @Inputs.reactants_c
     def set_reactants_c(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reactants_c = data
         self._maybe_autorun()
 
     @Inputs.reactions
     def set_reactions(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.reactions = data
         self._maybe_autorun()
 

@@ -46,7 +46,6 @@ from chem_inf_widgets.widgets.utils import (
     send_output_values,
     summarize_service_issues,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _count_card(label: str, value: int | str) -> str:
@@ -398,7 +397,6 @@ class OWChemicalSeriesExplorer(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Table | None) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._refresh_target_combo()
         if data is None:

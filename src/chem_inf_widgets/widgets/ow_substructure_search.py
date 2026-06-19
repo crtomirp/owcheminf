@@ -40,7 +40,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _find_smiles_meta_idx(table: Table) -> int:
@@ -235,7 +234,6 @@ class OWSubstructureSearch(OWWidget):
 
     @Inputs.query_text
     def set_query_text(self, query: Optional[str]) -> None:
-        clear_widget_outputs(self)
         q = (query or "").strip()
         if not q:
             return
@@ -246,14 +244,12 @@ class OWSubstructureSearch(OWWidget):
 
     @Inputs.query_table
     def set_query_table(self, t: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         q = _table_first_string(t) if t is not None else ""
         if q:
             self.set_query_text(q)
 
     @Inputs.query_molecule
     def set_query_molecule(self, cm: Optional[ChemMol]) -> None:
-        clear_widget_outputs(self)
         if cm is None or cm.mol is None:
             return
         try:
@@ -268,7 +264,6 @@ class OWSubstructureSearch(OWWidget):
 
     @Inputs.compounds
     def set_compounds(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         clear_widget_messages(self)
         self._compounds = data
         self._compounds_report = None

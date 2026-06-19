@@ -29,7 +29,6 @@ from chem_inf_widgets.chemcore.services.qsar_descriptor_explorer_service import 
     QSARDescriptorExplorerConfig,
     explore_qsar_descriptors,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 # ---------------------------------------------------------------------------
@@ -232,7 +231,6 @@ class OWDescriptorExplorer(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Table | None) -> None:
-        clear_widget_outputs(self)
         self._data = data
         if data is None:
             self._set_status("No data", ok=True)

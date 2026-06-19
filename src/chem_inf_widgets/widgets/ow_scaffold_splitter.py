@@ -33,7 +33,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_waiting_status,
 )
 from chem_inf_widgets.widgets.utils import send_output_values, show_service_issues
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _find_smiles_vars(data: Table) -> list[StringVariable]:
@@ -168,7 +167,6 @@ class OWScaffoldSplitter(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Table | None) -> None:
-        clear_widget_outputs(self)
         self.data = data
         clear_widget_messages(self)
         self._populate_smiles_combo()

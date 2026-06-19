@@ -34,7 +34,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +180,6 @@ class OWDrugFilter(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         clear_widget_messages(self)
         self._data = data
         self._table_report = None

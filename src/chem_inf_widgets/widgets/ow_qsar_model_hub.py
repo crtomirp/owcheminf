@@ -70,7 +70,6 @@ from chem_inf_widgets.chemcore.services.qsar_prediction_packager_service import 
     write_model_bundle_package,
 )
 from chem_inf_widgets.widgets import qsar_diagnostics_ui
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 # ── Orange ↔ pandas helpers ──────────────────────────────────────────────────
@@ -591,7 +590,6 @@ class OWQSARModelHub(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self._data = data
         if data is None:
             self._set_status("No data.", ok=False)

@@ -36,7 +36,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_no_input_status,
 )
 from chem_inf_widgets.widgets.utils import send_output_values, show_service_issues
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 _PROFILE_METRICS = [
     ("Lipinski", lambda record: 1.0 if record.lipinski_pass else 0.0),
@@ -276,7 +275,6 @@ class OWAdmetRadar(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Table | None) -> None:
-        clear_widget_outputs(self)
         self.data = data
         if data is None:
             self._send_empty()

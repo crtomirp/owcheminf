@@ -22,7 +22,6 @@ from rdkit import Chem
 from chem_inf_widgets.chemcore.mol import ChemMol
 from chem_inf_widgets.chemcore.services import mol_depict
 from chem_inf_widgets.chemcore.services.rdkit_safe import safe_canonical_smiles
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 # ============================================================
@@ -434,14 +433,12 @@ class OWMolViewer(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]):
-        clear_widget_outputs(self)
         self.items = mol_depict.table_to_items(data) if data else []
         self._refresh_properties()
         self.gallery.set_items(self.items)
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[List[ChemMol]]):
-        clear_widget_outputs(self)
         self.items = mol_depict.chemmols_to_items(mols) if mols else []
         self._refresh_properties()
         self.gallery.set_items(self.items)

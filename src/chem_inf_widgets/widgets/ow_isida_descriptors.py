@@ -28,7 +28,6 @@ try:
 except Exception:
     ChemMol = object
 from chem_inf_widgets.chemcore.services.rdkit_safe import safe_mol_from_smiles
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 logger = logging.getLogger(__name__)
@@ -339,7 +338,6 @@ class OWIsidaDescriptors(widget.OWWidget, ConcurrentWidgetMixin):
     
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self._input_data = data
         if data:
             self._mols = self._extract_mols_from_table(data)
@@ -351,7 +349,6 @@ class OWIsidaDescriptors(widget.OWWidget, ConcurrentWidgetMixin):
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[List[ChemMol]]) -> None:
-        clear_widget_outputs(self)
         if mols:
             self._mols = mols
             self._input_data = None 

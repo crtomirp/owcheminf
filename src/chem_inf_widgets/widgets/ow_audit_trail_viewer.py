@@ -21,7 +21,6 @@ from Orange.widgets.settings import Setting
 from Orange.widgets.widget import Input, Output, OWWidget
 
 from chem_inf_widgets.chemcore.services.report_table_utils import summary_rows_to_table
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 DIRECT_AUDIT_COLUMNS = ("row_id", "transform_log", "qc_flags", "dropped_reason")
@@ -182,7 +181,6 @@ class OWAuditTrailViewer(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self._data = data
         self._records = _table_records(data)
         self._rebuild()

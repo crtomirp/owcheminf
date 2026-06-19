@@ -42,7 +42,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_no_input_status,
     set_widget_error,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 _LABEL_CANDIDATES = {
     "name",
@@ -474,7 +473,6 @@ class OWDiversityPicker(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Table | None) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._populate_smiles_combo()
         self._set_status(self._input_summary())
@@ -482,7 +480,6 @@ class OWDiversityPicker(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, molecules: list | None) -> None:
-        clear_widget_outputs(self)
         self.molecules = [molecule for molecule in (molecules or []) if isinstance(molecule, ChemMol)]
         self._set_status(self._input_summary())
         self._maybe_autorun()

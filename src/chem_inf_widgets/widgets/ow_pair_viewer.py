@@ -29,7 +29,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_loaded_status,
     format_waiting_status,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 _CLASSIC_PAIR_LEFT_CANDIDATES = [
@@ -429,7 +428,6 @@ class OWPairViewer(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._selected_index = None
         self._refresh_controls()

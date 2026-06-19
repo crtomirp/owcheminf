@@ -45,7 +45,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 # ---------------------------- helpers ----------------------------
@@ -399,7 +398,6 @@ class OWFingerprintGenerator(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._table_report = None
         self.Outputs.fingerprints.send(None)
@@ -437,7 +435,6 @@ class OWFingerprintGenerator(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[list]) -> None:
-        clear_widget_outputs(self)
         self.molecules = mols if mols else None
         self.Outputs.fingerprints.send(None)
         self.Outputs.molecules.send(None)

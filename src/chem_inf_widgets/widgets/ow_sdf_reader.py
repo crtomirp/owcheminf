@@ -23,7 +23,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 class OWSdfReader(OWWidget, ConcurrentWidgetMixin):
@@ -81,7 +80,6 @@ class OWSdfReader(OWWidget, ConcurrentWidgetMixin):
             self._scan_properties()
 
     def _scan_properties(self) -> None:
-        clear_widget_outputs(self)
         self.prop_list.clear()
         self._available_props.clear()
         self._last_result = None

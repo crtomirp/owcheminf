@@ -40,7 +40,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_no_input_status,
     set_widget_error,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 try:
     from rdkit import Chem
@@ -408,7 +407,6 @@ class OWScaffoldAnalysis(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._populate_smiles_combo()
         rows = 0 if data is None else len(data)
@@ -417,7 +415,6 @@ class OWScaffoldAnalysis(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, molecules: Optional[list]) -> None:
-        clear_widget_outputs(self)
         self.molecules = [m for m in (molecules or []) if isinstance(m, ChemMol)]
         if not self.data:
             self._set_status(f"Molecules: {len(self.molecules)}", ok=bool(self.molecules))

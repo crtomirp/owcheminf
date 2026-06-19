@@ -12,7 +12,6 @@ from chem_inf_widgets.chemcore.services.ad_workbench_service import (
     ADWorkbenchConfig,
     evaluate_applicability_domain_workbench,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _orange_table_to_dataframe(data: Table) -> pd.DataFrame:
@@ -112,7 +111,6 @@ class OWADWorkbench(OWWidget):
 
     @Inputs.data
     def set_data(self, data):
-        clear_widget_outputs(self)
         self.data = data
         self.info_label.setText("Query data received." if data is not None else "No query data.")
         if self.auto_run:
@@ -120,7 +118,6 @@ class OWADWorkbench(OWWidget):
 
     @Inputs.reference_data
     def set_reference_data(self, data):
-        clear_widget_outputs(self)
         self.reference_data = data
         if self.auto_run:
             self.commit()

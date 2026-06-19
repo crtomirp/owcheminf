@@ -31,7 +31,6 @@ from chem_inf_widgets.chemcore.services.model_explanation_service import (
     ModelExplanationConfig,
     explain_qsar_model,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 pg.setConfigOptions(antialias=True)
 
@@ -342,7 +341,6 @@ class OWModelExplanation(OWWidget):
     # ------------------------------------------------------------------
     @Inputs.data
     def set_data(self, data: Table | None):
-        clear_widget_outputs(self)
         self._data = data
         if data is not None:
             self._auto_detect_columns(data)
@@ -355,7 +353,6 @@ class OWModelExplanation(OWWidget):
 
     @Inputs.model
     def set_model(self, model):
-        clear_widget_outputs(self)
         self._model = model
         if model is None and self._data is not None:
             self._set_status("No model supplied — fallback explainer available")

@@ -20,7 +20,6 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_no_input_status,
     set_widget_error,
 )
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _string_vars(data: Table) -> List[StringVariable]:
@@ -239,7 +238,6 @@ class OWActivityCliffFinder(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self.data = data
         self._populate_combos()
         self._set_status(self._input_summary())

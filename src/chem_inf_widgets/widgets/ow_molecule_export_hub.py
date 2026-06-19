@@ -31,7 +31,6 @@ from chem_inf_widgets.chemcore.services.molecule_export_service import (
 from chem_inf_widgets.chemcore.services.orange_table_utils import format_domain_role_summary
 from chem_inf_widgets.chemcore.services.report_table_utils import report_rows_to_table, summary_rows_to_table
 from chem_inf_widgets.widgets.ui_helpers import format_done_status, format_failed_status, format_no_input_status
-from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 class OWMoleculeExportHub(OWWidget):
@@ -162,7 +161,6 @@ class OWMoleculeExportHub(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
-        clear_widget_outputs(self)
         self._data = data
         self._refresh_preview()
         if self.auto_run and self.output_path and self._has_input():
@@ -170,7 +168,6 @@ class OWMoleculeExportHub(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, molecules: Optional[list]) -> None:
-        clear_widget_outputs(self)
         self._molecules = molecules
         self._refresh_preview()
         if self.auto_run and self.output_path and self._has_input():
