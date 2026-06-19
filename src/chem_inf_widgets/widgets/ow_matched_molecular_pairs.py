@@ -17,6 +17,7 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_result_count_status,
     format_waiting_status,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _find_smiles_vars(data: Table) -> List[StringVariable]:
@@ -113,6 +114,7 @@ class OWMatchedMolecularPairs(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self.data = data
         self._populate_combos()
         self.status_label.setText(

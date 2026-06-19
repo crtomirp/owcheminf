@@ -51,6 +51,7 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 # ------------------------------ Categories / Groups ------------------------------
 
@@ -699,6 +700,7 @@ class OWMolDescriptor(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self._data = data
         self._table_report = None
         set_widget_warning(self, "")
@@ -714,6 +716,7 @@ class OWMolDescriptor(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, mols: Optional[list]) -> None:
+        clear_widget_outputs(self)
         self._molecules = [m for m in (mols or []) if isinstance(m, ChemMol)]
         self._set_status(self._input_summary())
         self._maybe_autorun()

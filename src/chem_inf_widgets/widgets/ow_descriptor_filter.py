@@ -40,6 +40,7 @@ from chem_inf_widgets.chemcore.services.descriptor_filter_service import (
     run_descriptor_filter,
 )
 from chem_inf_widgets.widgets.utils import require_table, send_output_values
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 pg.setConfigOptions(antialias=True)
 
@@ -525,6 +526,7 @@ class OWDescriptorFilter(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self._data = data
         if not require_table(data, self, message="No data."):
             self._cmb_target.blockSignals(True)

@@ -40,6 +40,7 @@ from chem_inf_widgets.chemcore.services.qsar_prediction_packager_service import 
 )
 from chem_inf_widgets.chemcore.services.qsar_target_contract import DEFAULT_QSAR_TARGET_COLUMN
 from chem_inf_widgets.widgets import qsar_diagnostics_ui, qsar_features_ui
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 TORCH_AVAILABLE = qsar_service.TORCH_AVAILABLE
 
@@ -327,11 +328,13 @@ class OWQSARRegression(OWWidget):
 
     @Inputs.data
     def set_data(self, dataset):
+        clear_widget_outputs(self)
         self.data = dataset
         self._maybe_autorun()
 
     @Inputs.external_data
     def set_external_data(self, dataset):
+        clear_widget_outputs(self)
         self.external_data = dataset
         self._maybe_autorun()
 

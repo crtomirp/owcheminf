@@ -33,6 +33,7 @@ from chem_inf_widgets.chemcore.services.atom_contribution_service import (
     AtomContributionResult,
     explain_molecule,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 pg.setConfigOptions(antialias=True)
 
@@ -276,11 +277,13 @@ class OWAtomContributionMap(OWWidget):
 
     @Inputs.model
     def set_model(self, model) -> None:
+        clear_widget_outputs(self)
         self._pipeline = model
         self._maybe_run()
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self._data = data
         if data is None:
             self._X = None

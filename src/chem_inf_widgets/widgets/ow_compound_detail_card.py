@@ -55,6 +55,7 @@ from chem_inf_widgets.widgets.ui_helpers import (
     format_no_input_status,
     format_result_count_status,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 def _pixmap_from_data_uri(uri: str) -> QPixmap:
@@ -667,6 +668,7 @@ class OWCompoundDetailCard(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self.data = data
         if data is not None:
             self.molecules = []
@@ -676,6 +678,7 @@ class OWCompoundDetailCard(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, molecules: Optional[list[ChemMol]]) -> None:
+        clear_widget_outputs(self)
         self.molecules = list(molecules or [])
         if molecules:
             self.data = None
@@ -685,5 +688,6 @@ class OWCompoundDetailCard(OWWidget):
 
     @Inputs.reference_data
     def set_reference_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self.reference_data = data
         self._refresh_detail()

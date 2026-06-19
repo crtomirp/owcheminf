@@ -36,6 +36,7 @@ from chem_inf_widgets.chemcore.services.reactor_service import (
     coerce_seed,
 )
 from chem_inf_widgets.widgets.ui_helpers import clear_widget_messages, set_widget_error
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 # ----------------------------- Orange3 Widget ------------------------------ #
@@ -155,18 +156,22 @@ class OWReactor(OWWidget):
 
     @Inputs.molecules
     def set_molecules(self, data: Optional[Table]):
+        clear_widget_outputs(self)
         self.data_mols = data
 
     @Inputs.reactions
     def set_reactions(self, data: Optional[Table]):
+        clear_widget_outputs(self)
         self.data_rxns[0] = data
 
     @Inputs.reactions2
     def set_reactions2(self, data: Optional[Table]):
+        clear_widget_outputs(self)
         self.data_rxns[1] = data
 
     @Inputs.reactions3
     def set_reactions3(self, data: Optional[Table]):
+        clear_widget_outputs(self)
         self.data_rxns[2] = data
 
     # --------------------------- Helpers ------------------------------ #

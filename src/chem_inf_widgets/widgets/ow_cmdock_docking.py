@@ -50,6 +50,7 @@ from chem_inf_widgets.widgets.ui_helpers import (
     set_widget_error,
     set_widget_warning,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 # Fixed pose columns kept in the output table (the remaining CORE_COLUMNS are
 # diagnostics or are superseded by the expanded SDF properties).
@@ -318,11 +319,13 @@ class OWCmDockDocking(OWWidget, ConcurrentWidgetMixin):
     # -- input -------------------------------------------------------------- #
     @Inputs.molecules
     def set_molecules(self, mols: Optional[list]) -> None:
+        clear_widget_outputs(self)
         self._molecules = [m for m in (mols or []) if isinstance(m, ChemMol)]
         self._update_input_status()
 
     @Inputs.data
     def set_data(self, data: Optional[Table]) -> None:
+        clear_widget_outputs(self)
         self._data = data
         self._populate_columns()
         self._update_input_status()

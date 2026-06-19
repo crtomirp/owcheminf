@@ -55,6 +55,7 @@ from chem_inf_widgets.chemcore.services.qsar_validation_dashboard_service import
     validate_qsar_predictions,
 )
 from chem_inf_widgets.widgets import qsar_diagnostics_ui
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 pg.setConfigOptions(antialias=True)
 
@@ -700,6 +701,7 @@ class OWQSARValidationDashboard(OWWidget):
 
     @Inputs.predictions
     def set_predictions(self, data):
+        clear_widget_outputs(self)
         self._predictions_data = data
         if data is None:
             self._set_chip_ok("No data")

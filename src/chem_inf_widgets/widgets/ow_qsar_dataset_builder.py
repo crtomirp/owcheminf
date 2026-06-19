@@ -22,6 +22,7 @@ from chem_inf_widgets.chemcore.services.qsar_dataset_builder_service import (
     build_qsar_dataset,
     smart_detect_columns,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 _AUTO = "— auto-detect —"
 
@@ -324,6 +325,7 @@ class OWQSARDatasetBuilder(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Table | None) -> None:
+        clear_widget_outputs(self)
         self.data = data
         if data is None:
             self._input_label.setText("No data on input.")

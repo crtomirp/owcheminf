@@ -50,6 +50,7 @@ from chem_inf_widgets.chemcore.qsar.mlr_selection import (
     permutation_test_cv_q2,
 )
 from chem_inf_widgets.widgets import qsar_diagnostics_ui
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 
 @dataclass
@@ -713,12 +714,14 @@ class OWMLRModelSelection(OWWidget):
 
     @Inputs.data
     def set_data(self, data: Optional[Table]):
+        clear_widget_outputs(self)
         self.data = data
         self._refresh_target_combo()
         self._deferred_apply()
 
     @Inputs.test_data
     def set_test_data(self, data: Optional[Table]):
+        clear_widget_outputs(self)
         self.test_data = data
         self._deferred_apply()
 

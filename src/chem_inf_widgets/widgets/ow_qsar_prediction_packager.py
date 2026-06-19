@@ -38,6 +38,7 @@ from chem_inf_widgets.chemcore.services.qsar_target_contract import (
     infer_target_label_from_model,
     prediction_column_name_for_target,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 pg.setConfigOptions(antialias=True)
 
@@ -332,17 +333,20 @@ class OWQSARPredictionPackager(OWWidget):
 
     @Inputs.model
     def set_model(self, model):
+        clear_widget_outputs(self)
         self._model = model
         self._sync_labels_from_model(model)
         self._maybe_commit()
 
     @Inputs.query_data
     def set_query_data(self, data: Table | None):
+        clear_widget_outputs(self)
         self._query_data = data
         self._maybe_commit()
 
     @Inputs.molecules
     def set_molecules(self, molecules):
+        clear_widget_outputs(self)
         self._molecules = molecules
         self._maybe_commit()
 

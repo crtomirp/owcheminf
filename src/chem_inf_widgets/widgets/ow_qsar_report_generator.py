@@ -36,6 +36,7 @@ from chem_inf_widgets.chemcore.services.qsar_report_generator_service import (
     QSARReportConfig,
     generate_qsar_report,
 )
+from chem_inf_widgets.widgets.utils import clear_widget_outputs
 
 pg.setConfigOptions(antialias=True)
 
@@ -532,28 +533,28 @@ class OWQSARReportGenerator(OWWidget):
     # ── inputs ────────────────────────────────────────────────────────────────
 
     @Inputs.dataset
-    def set_dataset(self, d): self._data["dataset"] = d; self._maybe_commit()
+    def set_dataset(self, d): clear_widget_outputs(self); self._data["dataset"] = d; self._maybe_commit()
 
     @Inputs.metrics
-    def set_metrics(self, d): self._data["metrics"] = d; self._maybe_commit()
+    def set_metrics(self, d): clear_widget_outputs(self); self._data["metrics"] = d; self._maybe_commit()
 
     @Inputs.predictions
-    def set_predictions(self, d): self._data["predictions"] = d; self._maybe_commit()
+    def set_predictions(self, d): clear_widget_outputs(self); self._data["predictions"] = d; self._maybe_commit()
 
     @Inputs.validation_summary
-    def set_validation_summary(self, d): self._data["validation_summary"] = d; self._maybe_commit()
+    def set_validation_summary(self, d): clear_widget_outputs(self); self._data["validation_summary"] = d; self._maybe_commit()
 
     @Inputs.feature_importance
-    def set_feature_importance(self, d): self._data["feature_importance"] = d; self._maybe_commit()
+    def set_feature_importance(self, d): clear_widget_outputs(self); self._data["feature_importance"] = d; self._maybe_commit()
 
     @Inputs.model_summary
-    def set_model_summary(self, d): self._data["model_summary"] = d; self._maybe_commit()
+    def set_model_summary(self, d): clear_widget_outputs(self); self._data["model_summary"] = d; self._maybe_commit()
 
     @Inputs.ad_summary
-    def set_ad_summary(self, d): self._data["ad_summary"] = d; self._maybe_commit()
+    def set_ad_summary(self, d): clear_widget_outputs(self); self._data["ad_summary"] = d; self._maybe_commit()
 
     @Inputs.explanation_summary
-    def set_explanation_summary(self, d): self._data["explanation_summary"] = d; self._maybe_commit()
+    def set_explanation_summary(self, d): clear_widget_outputs(self); self._data["explanation_summary"] = d; self._maybe_commit()
 
     def _maybe_commit(self):
         if self.auto_run:
