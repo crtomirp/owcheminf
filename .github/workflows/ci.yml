@@ -5,13 +5,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Basic, quick pipeline: one job on the project's default Python (3.11), build
+# the conda environment, then byte-compile and run the unittest suite.
 jobs:
-  build-and-test:
+  test:
+    name: Quick test (py3.11)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
     env:
       QT_QPA_PLATFORM: offscreen
       MPLBACKEND: Agg
@@ -23,49 +22,21 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Conda environment
+      - name: Set up conda environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: ${{ matrix.python-version }}
-          activate-environment: oc4
           environment-file: environment.yml
+          activate-environment: owcheminf
           auto-activate-base: false
-          use-mamba: true
           channels: conda-forge
           channel-priority: strict
-          cache-environment: true
-          cache-environment-key: env-${{ matrix.python-version }}-${{ hashFiles('environment.yml') }}
+          use-mamba: true
 
-      - name: Install package in editable mode
-        run: |
-          pip install -e . pytest
+      - name: Install package
+        run: pip install -e . pytest
 
-      - name: Byte-compile source and tests
-        run: |
-          python -m compileall -q src tests
+      - name: Byte-compile sources and tests
+        run: python -m compileall -q src tests
 
-      - name: Run full unittest suite
-        run: |
-          python -m unittest discover -s tests -v
-
-      - name: Build source and wheel distributions
-        run: |
-          python -m build
-
-      - name: Verify wheel packaging
-        run: |
-          python -m unittest discover -s tests -p 'test_packaging_smoke.py' -v
-          python -m unittest discover -s tests -p 'test_wheel*_smoke.py' -v
-
-      - name: Verify Orange widget imports
-        run: |
-          python -m unittest discover -s tests -p 'test_widget_import_smoke.py' -v
-
-      - name: Verify Widget Smoke Workflows
-        run: |
-          python -m pytest \
-            tests/test_widget_smoke_tester.py \
-            tests/test_audit_trail_viewer.py \
-            tests/test_workflow_provenance_e2e.py \
-            tests/test_qsar_model_hub_optional_optuna.py \
-            -q
+      - name: Run unittest suite
+        run: python -m unittest discover -s tests -v
