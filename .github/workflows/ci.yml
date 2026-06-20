@@ -33,7 +33,13 @@ jobs:
           use-mamba: true
 
       - name: Install package
-        run: pip install -e . pytest
+        # Conda already provides every runtime dependency, so install only the
+        # project itself with --no-deps (pip must not pull PyPI wheels over the
+        # conda-forge binaries). pytest is installed separately so it can bring
+        # its own small pure-Python deps.
+        run: |
+          pip install -e . --no-deps
+          pip install pytest
 
       - name: Byte-compile sources and tests
         run: python -m compileall -q src tests

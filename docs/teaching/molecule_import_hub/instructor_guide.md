@@ -9,7 +9,7 @@
 Install the package and confirm that the widget appears in Orange:
 
 ```bash
-pip install -e .
+pip install -e . --no-deps
 orange-canvas
 ```
 

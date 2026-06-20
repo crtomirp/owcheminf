@@ -19,7 +19,7 @@ This is the recommended baseline for everyday Orange usage and for CI-like valid
 ```bash
 conda env create -f environment.yml
 conda activate owcheminf
-python -m pip install -e .
+python -m pip install -e . --no-deps
 ```
 
 If you want to run the pytest-based smoke checks from the lean environment, add:
@@ -47,7 +47,7 @@ Use this when you want broader tooling, packaging helpers, and common optional e
 ```bash
 conda env create -f environment-dev.yml
 conda activate owcheminf-dev
-python -m pip install -e .
+python -m pip install -e . --no-deps
 ```
 
 ## Clean install validation

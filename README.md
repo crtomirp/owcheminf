@@ -46,7 +46,7 @@ expose the full development/experimental palette as well, launch Orange with
 ```bash
 conda env create -f environment.yml
 conda activate owcheminf
-pip install -e .
+pip install -e . --no-deps
 orange-canvas
 ```
 

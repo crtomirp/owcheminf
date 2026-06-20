@@ -21,7 +21,7 @@ Before class, verify:
 
 ```bash
 conda activate owcheminf
-pip install -e .
+pip install -e . --no-deps
 python -c "import chem_inf_widgets.widgets.ow_molecule_qc_dashboard"
 owcheminf-molecule-qc --help
 ```

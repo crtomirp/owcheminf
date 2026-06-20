@@ -17,7 +17,7 @@ Install the package and verify the widgets:
 ```bash
 conda activate owcheminf
 cd cinf
-pip install -e .
+pip install -e . --no-deps
 orange-canvas
 ```
 

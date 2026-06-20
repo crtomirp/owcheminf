@@ -32,7 +32,7 @@ This package works best in a `conda-forge` environment because `Orange3`, `RDKit
 ```bash
 conda env create -f environment.yml
 conda activate owcheminf
-pip install -e .
+pip install -e . --no-deps
 ```
 
 Detailed setup notes are in [INSTALL_WITH_CONDA.md](../../INSTALL_WITH_CONDA.md).
@@ -43,7 +43,7 @@ For the fuller developer environment with optional tooling preinstalled:
 ```bash
 conda env create -f environment-dev.yml
 conda activate owcheminf-dev
-pip install -e .
+pip install -e . --no-deps
 ```
 
 ### Optional extras

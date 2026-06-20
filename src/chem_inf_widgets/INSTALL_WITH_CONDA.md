@@ -57,7 +57,7 @@ conda activate chem-inf-widgets
 The `environment.yml` already performs:
 
 ```text
-pip install -e .
+pip install -e . --no-deps
 ```
 
 so local code changes are immediately reflected. Nothing extra to do.

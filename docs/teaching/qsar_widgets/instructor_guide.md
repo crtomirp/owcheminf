@@ -5,7 +5,7 @@
 ```bash
 conda activate owcheminf
 cd cinf
-pip install -e .
+pip install -e . --no-deps
 orange-canvas
 ```
 
