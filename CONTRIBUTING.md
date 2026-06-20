@@ -5,10 +5,15 @@ Contributions are welcome. The project is a conda-first Orange3 add-on, so pleas
 ## Development setup
 
 ```bash
-conda env create -f environment.yml
-conda activate owcheminf
-python -m pip install -e .[dev]
+conda env create -f environment-dev.yml
+conda activate owcheminf-dev
+pip install -e . --no-deps
+pre-commit install
 ```
+
+`environment-dev.yml` provides the full dev toolchain (pytest, ruff, black,
+build, …) plus the common optional runtime extras, so the editable install uses
+`--no-deps` and does not pull PyPI wheels over the conda-forge binaries.
 
 ## Before submitting a pull request
 
@@ -23,7 +28,7 @@ Run the packaging and widget smoke checks:
 
 ```bash
 python -m build
-python -m unittest discover -s tests -p 'test_*smoke.py' -v
+python -m pytest tests/test_*smoke.py -q
 python -m pytest tests/test_widget_smoke_tester.py tests/test_widget_import_smoke.py -q
 ```
 

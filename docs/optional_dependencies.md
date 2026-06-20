@@ -55,8 +55,8 @@ python -m pip install -e . --no-deps
 After a fresh install, run these checks:
 
 ```bash
-python -m unittest discover -s tests -p 'test_packaging_smoke.py' -v
-python -m unittest discover -s tests -p 'test_widget_import_smoke.py' -v
+python -m pytest tests/test_packaging_smoke.py -q
+python -m pytest tests/test_widget_import_smoke.py -q
 python -m pytest tests/test_widget_smoke_tester.py tests/test_audit_trail_viewer.py tests/test_workflow_provenance_e2e.py -q
 ```
 

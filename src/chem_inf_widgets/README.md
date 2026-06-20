@@ -210,7 +210,7 @@ python -m build
 To verify packaged resources:
 
 ```bash
-python -m unittest discover -s tests -p 'test_*smoke.py' -v
+python -m pytest tests/test_*smoke.py -q
 ```
 
 Additional notes are in:

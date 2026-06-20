@@ -79,7 +79,7 @@ Rebuild and re-test the wheel:
 
 ```bash
 python -m build
-python -m unittest tests.test_packaging_smoke tests.test_wheel_resource_smoke tests.test_wheel_install_smoke -v
+python -m pytest tests/test_packaging_smoke.py tests/test_wheel_resource_smoke.py tests/test_wheel_install_smoke.py -q
 ```
 
 If the wheel archive is missing files, inspect `pyproject.toml` package-data settings.

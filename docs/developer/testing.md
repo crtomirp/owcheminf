@@ -52,7 +52,7 @@ Use smoke tests to catch:
 
 ## Service testing without Qt
 
-Prefer `unittest` or `pytest` with small synthetic inputs.
+Prefer `pytest` with small synthetic inputs.
 
 Typical pattern:
 
@@ -146,14 +146,14 @@ python -m compileall src
 ```bash
 python -m pytest -q tests/test_qsar*
 python -m pytest -q tests/test_widget_smoke_tester.py
-python -m unittest discover -s tests -v
+python -m pytest tests -q
 ```
 
 ### Packaging checks
 
 ```bash
 python -m build
-python -m unittest tests.test_packaging_smoke tests.test_wheel_resource_smoke tests.test_wheel_install_smoke -v
+python -m pytest tests/test_packaging_smoke.py tests/test_wheel_resource_smoke.py tests/test_wheel_install_smoke.py -q
 ```
 
 ## Clean test-writing conventions

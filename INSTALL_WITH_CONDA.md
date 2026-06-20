@@ -64,9 +64,12 @@ pip install -e .[all]
 
 ## Build and verify a wheel
 
+Run these from the **Developer setup** environment above — it provides `build`
+and `pytest`, which the lean recommended environment does not.
+
 ```bash
 python -m build
-python -m unittest discover -s tests -p 'test_*smoke.py' -v
+python -m pytest tests/test_*smoke.py -q
 ```
 
 ## Launch Orange

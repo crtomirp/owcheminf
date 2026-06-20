@@ -2,6 +2,15 @@
 
 This page is the entry point for contributor-facing engineering notes.
 
+## Set up your environment
+
+Create the development environment first, then come back here:
+
+- [CONTRIBUTING.md](../CONTRIBUTING.md) — development setup (recommended)
+- [INSTALL_WITH_CONDA.md](../INSTALL_WITH_CONDA.md) — "Developer setup" section
+
+Both use `environment-dev.yml` + `pip install -e . --no-deps`.
+
 ## Start here
 
 - [Developer architecture](developer/architecture.md)

@@ -28,7 +28,8 @@ dependencies:
   - plotly
   - py3dmol
 
-  # Development / packaging
+  # Development / packaging (superset of the project's [dev] extra, so the
+  # editable install can use --no-deps and still have every dev tool present)
   - pytest
   - black
   - isort
@@ -36,6 +37,7 @@ dependencies:
   - pre-commit
   - twine
   - python-build
+  - markdown
 
   # Pip-only extras aligned with pyproject optional dependencies
   - pip:

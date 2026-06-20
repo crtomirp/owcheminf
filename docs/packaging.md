@@ -30,7 +30,7 @@ The built wheel must contain runtime assets used by widgets and services, especi
 Run the packaging smoke tests after every wheel build:
 
 ```bash
-python -m unittest discover -s tests -p 'test_*smoke.py' -v
+python -m pytest tests/test_*smoke.py -q
 ```
 
 The checks cover three layers:

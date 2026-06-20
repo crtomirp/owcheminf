@@ -59,7 +59,7 @@ For a fuller local developer setup with optional tooling already present:
 ```bash
 conda env create -f environment-dev.yml
 conda activate owcheminf-dev
-pip install -e .[dev]
+pip install -e . --no-deps
 pre-commit install
 orange-canvas
 ```
@@ -70,14 +70,14 @@ For optional features such as `Mordred`, `PaDEL`, `py3Dmol`, `optuna` or `torch`
 
 ```bash
 python -m build
-python -m unittest discover -s tests -p 'test_*smoke.py' -v
+python -m pytest tests/test_*smoke.py -q
 ```
 
 ## Runtime Smoke Checks
 
 ```bash
 python -m pip install pytest
-python -m unittest discover -s tests -p 'test_widget_import_smoke.py' -v
+python -m pytest tests/test_widget_import_smoke.py -q
 python -m pytest tests/test_widget_smoke_tester.py tests/test_audit_trail_viewer.py tests/test_workflow_provenance_e2e.py -q
 ```
 

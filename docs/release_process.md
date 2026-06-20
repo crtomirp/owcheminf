@@ -36,7 +36,7 @@ python -m pip install -e .[dev]
 python -m compileall -q src tests
 python -m pytest -q
 python -m build
-python -m unittest discover -s tests -p 'test_*smoke.py' -v
+python -m pytest tests/test_*smoke.py -q
 python -m pytest tests/test_widget_smoke_tester.py tests/test_widget_import_smoke.py -q
 ```
 
